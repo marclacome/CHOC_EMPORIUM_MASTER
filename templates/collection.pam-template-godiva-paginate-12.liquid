@@ -1,0 +1,12 @@
+{% assign selected_brand='godiva' %}
+
+
+
+
+{% assign PAM_paginate_max = 12 %}
+{% assign PAM_brand = 'pick-and-mix-brand-' | append: selected_brand %}
+{% assign ITEMS_PER_PAGE_NAVIGATION =  "Items per page: <a href='/collections/pick-and-mix?view=pam-template-" | append: selected_brand %}
+{% assign ITEMS_PER_PAGE_NAVIGATION = ITEMS_PER_PAGE_NAVIGATION | append : "-paginate-12' class='items-active'>12</a> | <a href='/collections/pick-and-mix?view=pam-template-" %}
+{% assign ITEMS_PER_PAGE_NAVIGATION = ITEMS_PER_PAGE_NAVIGATION | append : selected_brand %}
+{% assign ITEMS_PER_PAGE_NAVIGATION = ITEMS_PER_PAGE_NAVIGATION | append : "-paginate' >50</a>" %}
+{% include 'PAM_template' %}

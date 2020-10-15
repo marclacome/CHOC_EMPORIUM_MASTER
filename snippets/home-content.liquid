@@ -1,0 +1,7 @@
+{% unless settings.home_content == blank or pages[settings.home_content].empty? or pages[settings.home_content].content == blank %}
+  {% assign home_page_content_enabled = true %}
+  {% assign page = pages[settings.home_content] %}
+  <div class="rte">
+    {{ page.content }}
+  </div>
+{% endunless %}

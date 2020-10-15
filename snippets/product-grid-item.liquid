@@ -1,0 +1,266 @@
+{% unless grid_item_width %}
+  {% assign grid_item_width = 'large--one-quarter medium-down--one-half' %}
+{% endunless %}
+
+{% unless current_collection %}
+  {% assign current_collection = collection %}
+{% endunless %}
+
+{% assign on_sale = false %}
+{% if product.compare_at_price > product.price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% assign sold_out = true %}
+{% if product.available  %}
+  {% assign sold_out = false %}
+{% endif %}
+
+{% comment %}
+  Select the product image size from settings.
+{% endcomment %}
+
+
+{% assign IS_PAM_PRODUCT = false %}
+      {% for c in product.collections %}
+        {% assign hand = c.handle | upcase %}
+        {% if hand contains 'PICK-AND-MIX' %}
+            {% assign IS_PAM_PRODUCT = true %}
+        {% endif %}
+      {% endfor %}
+
+
+{% assign image_size = settings.collection_prod_image_sizes %}
+<div class="bdi-same-height grid-item {{ grid_item_width }}{% if sold_out %} sold-out{% endif %}{% if on_sale %} on-sale{% endif %}">
+  <!--test grid border div-->
+  <div class="pam-grid-border">
+
+{% if IS_PAM_PRODUCT %}
+   {% if template contains 'pam' %}
+      <a href="javascript:PAM.show_product_details('{{product.handle}}')" class="product-grid-item-pam">
+   {%else%}
+		<a href="/collections/pick-and-mix?view=pam-template-paginate" class="product-grid-item">
+   {% endif %}
+{% else %}
+  <a href="{{ product.url | within: current_collection }}" class="product-grid-item">
+{% endif %}
+    <div class="bdi-product-grid-image">
+      <div class="product-grid-image--centered">
+        {% if on_sale %}
+        {% capture discount %} {{ product.selected_or_first_available_variant.compare_at_price | minus:product.selected_or_first_available_variant.price | times:100 | divided_by:product.selected_or_first_available_variant.compare_at_price }}% {% endcapture %}
+          <div class="badge--sale"><span class="badge-label-sale" id="product_grid_percent_sale">Sale - Save {{discount}}</span></div>
+        {% endif %}
+        {% if sold_out %}
+          <div class="badge badge--sold-out"><span class="badge-label">{{ 'products.product.sold_out' | t }}</span></div>
+        {% endif %}
+        <img src="{{ product.featured_image.src | img_url: image_size }}" alt="{{ product.featured_image.alt | escape }}">
+      </div>
+    </div>
+
+<div class='bdi-product-height-adjust{% if IS_PAM_PRODUCT %}-PAM{%endif%}'>
+    <p>{{ product.title }}</p>
+
+    <div class="product-item--price">
+    {% if product.variants.size > 1 %}
+      <div id='price_from_display_{{product.id}}' class='grid-price-from-label'>
+      From
+      </div>
+    {% endif %}
+    <div id='price_money_display_{{product.id}}' class='grid-price-money-label'>
+    {% if product.variants.size > 1 %}
+      {{ product.price_min | money }}
+    {% else %}
+      {{product.price | money }}
+    {% endif %}
+    </div>
+    {% if product.compare_at_price_max > product.price %}
+    <input type='hidden' id='compare_price_hidden_{{product.id}}' value='(WAS {{product.first_available_variant.compare_at_price | money}})'>
+      <div id='variant_compare_price_{{product.id}}' class='variant-compare-price-grid'>
+        (Was {{product.first_available_variant.compare_at_price | money}})
+      </div>
+    {% endif %}
+    </div><!-- product-item--price-->
+</div><!--bdi-product-height-adjust-->
+
+    {% if settings.product_reviews_enable %}
+     <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+    {% endif %}
+  </a>
+
+ <!--
+**********************************************************************************
+  this snippet used by both normal shop & pam
+	For the pam page, show the 'add to bag button'
+	for normal shop, add the 'direct to cart' button
+**********************************************************************************
+  -->
+    <!--
+**********************************************************************************
+	a product in the pam collection - show add to bag button
+**********************************************************************************
+	-->
+
+
+  {% if IS_PAM_PRODUCT %}
+    {% if template contains 'pam' %}
+	  <div class="pam-quantity-selector">
+   		<table width="100%">
+     	<tr>
+       		<td width="15%" align="center" class='pam-quantity-minus' id='pam-quantity-minus-{{product.first_available_variant.id}}'>
+        	 &#45;
+       		</td>
+     		<td width="70%"><input type='text' value="1" min="1" id='{{product.first_available_variant.id}}_bag_quantity' value='1'>
+       		</td>
+       		<td width="15%"  class='pam-quantity-plus' id='pam-quantity-plus-{{product.first_available_variant.id}}'>
+        	 &#43;
+       		</td>
+     	</tr>
+    	</table>
+  	</div>
+  	<div class="pam-button-holder">
+  		<table><tr>
+    	{% if sold_out == true %}
+    		<td class="sold-out-btn">sold out</td>
+       	{% else %}
+      		<td><input type='button' id='add_to_bag_{{product.first_available_variant.id}}' value='add to bag' onclick='PAM.add_product_quantity_to_bag("{{product.first_available_variant.id}}", "{{product.first_available_variant.id}}_bag_quantity")' class="pam-btn"></td>
+    	{% endif %}
+    		</tr></table>
+     	</div>
+    {% else %}<!-- template contains pam -->
+      <!-- insert hidden div for both product option select and
+		add to cart. Keeps the height of surrounding div consistent -->
+      <div class='direct-to-cart-select-wrap' style='visibility:hidden' >
+      <select></select>
+      </div>
+      <div class='PAM-direct-to-cart pam-only-btn'>
+        <span><a href='/collections/pick-and-mix?view=pam-template-paginate'>GO TO PICK & MIX</a></span>
+      </div>
+    {% endif %}<!-- is pam product -->
+    <!-- -->
+
+    <!--
+	**********************************************************************************
+		not pam page - direct to cart button, with select variant if reqd
+	**********************************************************************************
+	-->
+       {%else %}
+
+	{% if product.tags contains "OPTION-HIDE-BUY-DIRECT" %}
+        <!-- insert hidden div for both product option select and
+		add to cart. Keeps the height of surrounding div consistent -->
+      <div class='direct-to-cart-select-wrap' style='visibility:hidden' >
+      <select></select>
+      </div>
+      <div class='PAM-direct-to-cart' style='visibility:hidden'>
+        <span>.</span>
+      </div>
+    <!-- -->
+    {%else %} <!-- show direct to cart button -->
+    {% include 'gift_wrap_options_string_maker' %}
+    <input type='hidden' value='{{outstr}}' id='{{product.id}}_gift_wrap'>
+
+    		{% assign varcount = product.variants | size %}
+    		 <div class='direct-to-cart-select-wrap' >
+    		{% if varcount > 1 %}
+       			<select id='product_variant_select_{{product.id}}' onchange='GW.product_variant_select({{product.id}})'>
+         		 <option selected="selected" value="-1">Select {{product.options[0]}}...</option>
+         		 {% for variant in product.variants %}
+                {% if variant.available %}
+                  {% if variant.compare_at_price > variant.price %}
+                    <option {% if variant == product.selected_or_first_available_variant %}  {% endif %} variant_price="{{variant.price|money}}" variant_title="{{variant.title}}" data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }} (Was {{variant.compare_at_price | money}})</option>
+                  {% else %}
+                    <option {% if variant == product.selected_or_first_available_variant %}  {% endif %} variant_price="{{variant.price|money}}" variant_title="{{variant.title}}" data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+                  {% endif %}
+                {% else %}
+                  <option disabled="disabled">
+                  {{ variant.title }} - {{ 'products.product.sold_out' | t }}
+                  </option>
+               {% endif %}
+             {% endfor %}
+        		 </select>
+                 
+             </div> <!-- direct-to-cart-select-wrap -->
+          
+          
+
+<!--V6 - ADD QUANTITY SELECTOR -->
+<div class="product-quantity-selector">
+<table width="100%">
+<tr>
+<td width="15%" align="center" class='pam-quantity-minus-GRID' id='pam-quantity-minus-{{product.id}}'>
+ &#45;
+</td>
+<td width="70%"><input type='text' name='quantity' value="1" min="1" id='product_bag_quantity-{{product.id}}' value='1'>
+</td>
+<td width="15%"  class='pam-quantity-plus-GRID' id='pam-quantity-plus-{{product.id}}'>
+ &#43;
+</td>
+</tr>
+</table>
+</div>
+<!-- -v6- -->
+
+
+
+
+            {% if product.tags contains 'NO GIFT WRAP' %}
+                <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", false, {{product.variants | size}}, "{{product.url}}")'>
+            {% else %}
+          	   <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", true, {{product.variants | size}}, "{{product.url}}")'>
+            {% endif %}
+            <span >add to basket</span>
+          	</div>
+    		{% else %} <!-- varcount <= 1 -->
+    <!--
+	**********************************************************************************
+	no variants - no select dropdown. add empty divs to keep height consistent
+	**********************************************************************************
+	-->
+          <input type='hidden' id='{{product.id}}_no_variants_id' value='{{product.first_available_variant.id}}'>
+  			  </div>
+
+            <!-- does nothing. keep height consistent -->
+            <div class='direct-to-cart-select-wrap' style='visibility:hidden' >
+            <select></select>
+            </div>
+            <!-- -->
+
+            <!--V6 - ADD QUANTITY SELECTOR -->
+            <div class="product-quantity-selector">
+            <table width="100%">
+            <tr>
+            <td width="15%" align="center" class='pam-quantity-minus-GRID' id='pam-quantity-minus-{{product.id}}'>
+             &#45;
+            </td>
+            <td width="70%"><input type='text' name='quantity' value="1" min="1" id='product_bag_quantity-{{product.id}}' value='1'>
+            </td>
+            <td width="15%"  class='pam-quantity-plus-GRID' id='pam-quantity-plus-{{product.id}}'>
+             &#43;
+            </td>
+            </tr>
+            </table>
+            </div>
+            <!-- -v6- -->
+
+
+            {% if sold_out == false %}
+              {% if product.tags contains 'NO GIFT WRAP' %}
+                  <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", false, {{product.variants | size}}, "{{product.url}}")'>
+              {% else %}
+            	   <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title | escape}}", true, {{product.variants | size}}, "{{product.url}}")'>
+              {% endif %}
+            <span >add to basket</span>
+          	</div>
+          {% else %}
+            <span class="sold-out-label">sold out</span>
+          {% endif %}
+
+      {% endif %} <!-- varcount -->
+	{% endif %} <!-- hide direct to cart -->
+ {% endif %} <!-- is pam page -->
+                    
+
+</div>
+</div>
+        
+        

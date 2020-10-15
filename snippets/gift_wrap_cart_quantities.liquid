@@ -1,0 +1,50 @@
+/* create js arrays for number of product and giftwrap and tag products in the cart.
+When shopper adds a product with giftwrap & tag we need to know existing quantities of these so we can increment
+(which means we can do product + giftwrap + tag in a single transaction - as an 'update' - rather than 3 individual 'add')
+*/
+
+
+<h1>i am here</h1>
+<script>
+function in_my_array(ar, search)
+{
+  var found = -1;
+  var index = 0;
+  for (index=0;index<ar.length;index++)
+  {
+    if (ar[index].id == search)
+      return index;
+  }
+  return -1;
+}
+
+var prod_ar = Array();
+var giftwrap_ar = new Array();
+var tag_ar = Array();
+{% for item in cart.items %}
+  {% for c in item.product.collections %}
+    {% if c.handle == 'gift-wrap' %}
+      var i = in_my_array(giftwrap_ar, {{item.id}});
+      if (i >= 0 )
+        giftwrap_ar[i].quantity += {{item.quantity}};
+      else
+        giftwrap_ar.push({'id':{{item.id}}, 'quantity':parseInt({{item.quantity}}, 10) });
+    {% elsif c.handle == 'gift-tag' %}
+    var i = in_my_array(tag_ar, {{item.id}});
+    if (i >= 0 )
+      tag_ar[i].quantity += parseInt({{item.quantity}}, 10);
+    else
+      tag_ar.push({'id':{{item.id}}, 'quantity':parseInt({{item.quantity}}, 10) });
+    {% else %}
+    var i = in_my_array(prod_ar, {{item.id}});
+    if (i >= 0 )
+      prod_ar[i].quantity += parseInt({{item.quantity}}, 10);
+    else
+      prod_ar.push({'id':{{item.id}}, 'quantity':parseInt({{item.quantity}}, 10) });
+    {% endif %}
+
+  {% endfor %}
+{% endfor %}
+
+
+</script>

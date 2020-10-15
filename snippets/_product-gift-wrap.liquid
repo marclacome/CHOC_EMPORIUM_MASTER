@@ -1,0 +1,113 @@
+{% if product.tags contains "OPTION-SIZE-AND-GIFT-WRAP" %}
+<input type='hidden' id='size-and' value='-10'>
+
+<div id='product-giftwrap-products' class="product-giftwrap-products">
+  SIZE
+  <table><tr>
+  {%assign last_size = 'nonesuch'%}
+  {% for v in product.variants %}
+  {% if last_size != v.option1 %}
+    <td>
+  	{% if v.inventory_management %}
+    	{{v.option1}} <input type='checkbox' name="product_checkbox_group" class="product_checkbox" id="product_check_{{v.id}}" onclick="PAM.product_check_click({{v.id}}, {{v.inventory_quantity}})">
+ 	 {% else %}
+    	{{v.option1}} <input type='checkbox' name="product_checkbox_group" class="product_checkbox" id="product_check_{{v.id}}" onclick="PAM.product_check_click({{v.id}}, 1)">
+    </td>
+  	{% endif %}
+  {% endif %}
+  {% assign last_size = v.option1 %}
+
+  {% endfor %}
+    </tr></table>
+</div>
+
+<div id='product-giftwrap-options' class="product-giftwrap-options">
+  {%assign last_size = 'nonesuch'%}
+  <table><tr>
+{% for v in product.variants %}
+  {% if last_size != v.option1 %}
+	  </tr>
+	  <tr class='giftwrap-options-panel' id='giftwrap-options-panel-{{v.id}}' style='display:none'>
+        {% assign first = true %}
+	{% endif %}
+        {% assign vupper_case = v.option2 | upcase %}
+        {% if vupper_case == "NONE" %}
+        {% if v.inventory_management %}
+        	{% if v.inventory_quantity == 0 %}
+              <td>OUT OF STOCK</td>
+        	{% else %}
+        		{% if v.inventory_quantity < 10 %}
+        			<td>ONLY {{v.inventory_quantity}} LEFT IN STOCK</td>
+        		{% endif %}
+        	{% endif %}
+        {% endif %}
+
+        <td>No Giftwrap
+        {%else%}
+        <td>{{v.option2}}
+        {%endif%}
+        {{v.price | money}}</td>
+        {% if first %}
+        <td><input type="checkbox" name="giftwrap_checkbox_group" class="giftwrap_checkbox" id="giftwrap_checkbox_{{v.id}}" onclick="PAM.giftwrap_click({{v.id}},'{{v.price| money}}')" /></td>
+        {%else %}
+        <td><input type="checkbox" name="giftwrap_checkbox_group" class="giftwrap_checkbox" id="giftwrap_checkbox_{{v.id}}" onclick="PAM.giftwrap_click({{v.id}},'{{v.price| money}}')" /></td>
+        {%endif%}
+        {%assign first = false%}
+        {% assign last_size = v.option1 %}
+        {% endfor %}
+  </table>
+</div>
+
+
+{% else %} <!-- GIFT WRAP ONLY -->
+<input type='hidden' id='size-and' value='-1'>
+
+<div id='product-giftwrap-options' class="product-onesize-giftwrap-options">
+  <table id='giftwrap-options-table-{{v.id}}'>
+    <tr class='giftwrap-options-panel' id='giftwrap-options-panel-{{v.id}}' >
+      {% assign first = true %}
+{% for v in product.variants %}
+
+        {% assign vupper_case = v.option1 | upcase %}
+        {% if vupper_case == "NONE" %}
+        	{% if v.inventory_management %}
+        		{% if v.inventory_quantity == 0 %}
+              		<td>OUT OF STOCK</td>
+        		{% else %}
+        			{% if v.inventory_quantity <= 3 %}
+        				<td>ONLY {{v.inventory_quantity}} LEFT IN STOCK</td>
+        		{% endif %}
+        	{% endif %}
+        {% endif %} <!-- uppercase = NONE -->
+
+        <td>No Giftwrap
+        {%else%}
+        <td>{{v.option1}}
+        {%endif%}
+        {{v.price | money}}</td>
+        <td>
+          {% if first %}
+          <input type="checkbox" name="giftwrap_checkbox_group" class="giftwrap_checkbox" id="giftwrap_checkbox_{{v.id}}" onclick="PAM.giftwrap_click({{v.id}},'{{v.price| money}}')"></td>
+      	{% else %}
+          <input type="checkbox" name="giftwrap_checkbox_group" class="giftwrap_checkbox" id="giftwrap_checkbox_{{v.id}}" onclick="PAM.giftwrap_click({{v.id}},'{{v.price| money}}')"></td>
+  		{% endif %}
+  {% assign first = false %}
+        {% endfor %}
+    </tr>
+  </table>
+</div>
+{% endif %}
+
+
+
+
+
+
+
+
+<script>
+   jQuery(function($){
+     //first size and giftwrap option set by default
+     PAM.init_giftwrap();
+    });
+  </script>

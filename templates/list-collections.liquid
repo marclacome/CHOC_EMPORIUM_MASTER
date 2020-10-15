@@ -1,0 +1,60 @@
+{% if settings.developer_mode %}
+<div class="developer-label">[template list-collections]</div>
+{% endif %}
+
+
+
+{% include 'breadcrumb' %}
+{% comment %}
+  Custom order collections by 'all-collections' linklist
+{% endcomment %}
+{% assign product_count = 1 %}
+
+
+<div id="normal_display" style="display:none">
+  {% for link in linklists.all-collections.links %}
+    {% assign collection = link.object %}
+    {% include 'collection-list-item' %}
+    {% unless forloop.last %}<hr>{% endunless %}
+  {% else %}
+    {% comment %}
+      Default collection order
+    {% endcomment %}
+    {% for collection in collections %}
+      {% unless collection.handle == 'frontpage' or collection.handle == 'all' or collection.handle == 'pick-and-mix' or collection.handle == 'pick-and-mix-gift-wrap' or collection.handle == 'gift-wrap' or collection.handle == 'gift-tag' or collection.handle.contains 'pick-and-mix-brand-' %}
+        {% unless collection.handle contains 'pick-and-mix-brand' %}
+        {% include 'collection-list-item' %}
+        {% unless forloop.last %}<hr>{% endunless %}
+      {% endunless %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+</div>  
+
+
+<div id="whereweat_display" style="display:block">
+  {% for link in linklists.all-collections.links %}
+    {% assign collection = link.object %}
+  	{% if collection.handle == 'pick-and-mix' %}
+  		{% assign collection = collections['pick-and-mix-usa'] %}
+  	{% endif %}
+    {% include 'collection-list-item' %}
+    {% unless forloop.last %}<hr>{% endunless %}
+  {% else %}
+    {% comment %}
+      Default collection order
+    {% endcomment %}
+    {% for collection in collections %}
+      {% unless collection.handle == 'frontpage' or collection.handle == 'all' or collection.handle == 'pick-and-mix' or collection.handle == 'pick-and-mix-gift-wrap' or collection.handle == 'gift-wrap' or collection.handle == 'gift-tag' or collection.handle.contains 'pick-and-mix-brand-' %}
+        {% unless collection.handle contains 'pick-and-mix-brand' %}
+        {% include 'collection-list-item' %}
+        {% unless forloop.last %}<hr>{% endunless %}
+      {% endunless %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+</div>  
+
+{% if settings.developer_mode %}
+<div class="developer-label">[/template list-collections]</div>
+{% endif %}

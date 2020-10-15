@@ -1,0 +1,118 @@
+
+{% if product.tags contains "OPTION-SIZE-AND-GIFT-WRAP" %}
+<input type='hidden' id='size-and' value='-10'>
+{% for v in product.variants %}
+    {% assign vupper_case = v.option2 | upcase %}   
+    {% if vupper_case contains "NONE" %}
+		<input type='hidden' id='stock-level-{{v.id}}' value='
+		{% if v.inventory_management %}
+			{{v.inventory_quantity}} 
+		{% else %}
+            1000
+		{% endif %}                                                            
+		'>                                                            
+    {%endif%}
+{% endfor %}
+
+<div id='product-giftwrap-products' class="product-giftwrap-products">
+  <h4>SIZE</h4>
+  <div class='selector-wrapper'>
+  <select id='giftwrap-sizes-select'>
+    <option value='-1'>Select a size</option>
+  {% for v in product.variants %}   
+    {% if last_size != v.option1 %}                             
+      <option value='{{v.id}}'>{{v.option1}}</option>
+    {% endif %}
+    {% assign last_size = v.option1 %}     
+  {% endfor %}
+  </select>
+  </div>
+</div>
+
+<div id='product-giftwrap-options' class="product-giftwrap-options">
+  {% assign count = 0 %}
+  {%assign last_size = 'nonesuch'%}
+  {% for v in product.variants %} 
+	  {% if last_size != v.option1 %}
+ 		 {% assign stock_this_item = -1 %}
+		{% assign vupper_case = v.option2 | upcase %}        
+        	{% if vupper_case contains "NONE" %}
+        		{% if v.inventory_management %}  
+  					{% assign stock_this_item = v.inventory_quantity %}
+				{% endif %} 
+  			{%endif %}
+	    {% if count != 0 %}
+  </select></div></div>
+        {% endif %}
+	    {% assign count=1%}
+  	    {% assign out_of_stock = false %}
+	    <div class='giftwrap-options-panel' id='giftwrap-options-panel-{{v.id}}' style='display:none'>  
+          {% if stock_this_item >= 0 %}
+          	{% if stock_this_item == 0 %}
+          		<div class='product-stock-display'>OUT OF STOCK</div>
+          	{% else %}
+          		{% if stock_this_item < 10 %}
+          			<div class='product-stock-display'>Only {{stock_this_item}} left in stock</div>
+          		{% endif %}
+          	{%endif %}
+          {% endif %}
+          <h4>GIFT WRAP</h4>
+          <div class='selector-wrapper'>	
+		  <select class='giftwrap-select' id='giftwrap-select-{{v.id}}'>
+			<option value='-1'>Select giftwrap option</option>
+        
+           {% assign first = true %}
+	  {% endif %}        
+      {% assign vupper_case = v.option2 | upcase %}        
+          <option value='{{v.id}}'>{{v.option2}} {{v.price | money}}</option> 
+            {% assign last_size = v.option1 %}
+   {%endfor%}
+          </select></div></div>
+           
+</div>
+
+
+
+
+
+{% else %} <!-- GIFT WRAP ONLY -->
+<input type='hidden' id='size-and' value='-1'>
+    {% for v in product.variants %}
+    {% assign vupper_case = v.option1 | upcase %}   
+    {% if vupper_case contains "NONE" %}
+		<input type='hidden' id='stock-level-'{{v.id}} value='
+		{% if v.inventory_management %}
+			{{v.inventory_quantity}} 
+		{% else %}
+            1000
+		{% endif %}                                                            
+		'>                                                            
+    {%endif%}
+	{% endfor %}
+
+<div id='product-giftwrap-options' class="product-onesize-giftwrap-options"> 
+  <h4>SELECT GIFT WRAP</h4>
+  		  <select class='giftwrap-select' id='giftwrap-select-{{v.id}}'>
+			<option value='-1'>Select giftwrap option</option>
+  {% for v in product.variants %}   
+    {% if last_size != v.option1 %}                             
+      <option value='{{v.id}}'>{{v.option1}} {{v.price | money}}</option>
+    {% endif %}
+    {% assign last_size = v.option1 %}     
+  {% endfor %}
+  </select>
+</div>
+{% endif %}
+
+    
+
+
+
+
+
+<script>
+   jQuery(function($){
+     //first size and giftwrap option set by default
+     PAM.init_giftwrap();
+    });
+  </script> 

@@ -1,0 +1,94 @@
+{%comment%} ALL THIS JUST TO GET GIFT WRAP VARIANT ID FOR EACH PRODUCT VARIANT
+input string = [GIFTWRAP-10=A,E-20=B-30=C-40=D-50=E]
+end result of this is
+variant-title=variant-id=giftwrap_variant_id=giftwrap_variant_text=giftwrap_variant_price=giftwrap_image
+{%endcomment%}
+
+{% if product.variants.size > 1 %}
+  {% assign gar = product.description | split: '[' %}
+  {% assign outstr = '' %}
+  {% if gar.size <= 1 %}
+    {% assign outstr = 'NO_GIFT_WRAP' %}
+  {% else %}
+    {% assign garr = gar[1] | split: ']' %}
+    {% assign garstr = garr[0] | replace : "-", "=" %}
+    {% assign garar = garstr | split: '=' %}
+    {% assign gcount=0 %}
+    {% for product_wrap_options in garar %}
+      {% if gcount > 0 %}
+        {% assign thisg = gcount | modulo : 2 %}
+        {% if thisg == 1 %}
+          {% assign nextindex = gcount | plus : 1 %}
+          {% assign outstr = outstr | append : '|' %}
+          {% assign outstr = outstr | append : garar[gcount] %}
+          {% assign outstr = outstr | append : '=' %}
+          {% assign product_wrap_options_ar = garar[nextindex] | split: ',' %}
+          {% assign option_count = 0 %}
+          {% for pwo in product_wrap_options_ar %}
+           {% for gwo in collections['gift-wrap'].products %}
+           {%comment%}
+          {% endcomment %}
+            {% for v in gwo.variants %}
+              {% if v != 'FREE-GIFTWRAP' and v.barcode contains pwo %}
+                {% if option_count > 0 %}
+                  {% assign outstr = outstr | append : '=' %}
+                {% endif %}
+                {% assign outstr = outstr | append : v.id %}
+                {% assign outstr = outstr | append : '=' %}
+                {% assign outstr = outstr | append : gwo.title %}
+                {% assign outstr = outstr | append : ' ' %}
+                {% assign outstr = outstr | append : v.title %}
+                {% assign outstr = outstr | append : '=' %}
+                {% assign price = v.price | money %}
+                {% assign outstr = outstr | append : price  %}
+                {% assign outstr = outstr | append : '=' %}
+                {% assign img = gwo.featured_image | product_img_url: "small" %}
+                {% assign outstr = outstr | append : img %}
+                {% assign option_count = option_count | plus : 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {% endfor %}
+        {% endif %}
+      {%endif%}
+      {% assign gcount = gcount | plus : 1 %}
+    {%endfor%}
+  {% endif %}
+{%else%}
+  {% assign gar = product.description | split: '[' %}
+  {% assign outstr = 'all=' %}
+  {% if gar.size <= 1 %}
+    {% assign outstr = 'NO_GIFT_WRAP' %}
+  {% else %}
+    {% assign garr = gar[1] | split: ']' %}
+    {% assign garstr = garr[0] | replace : "-", "=" %}
+    {% assign garar = garstr | split: '=' %}
+    {% assign option_count = 0 %}
+    {% for pwoc in garar[1] %}
+      {% assign pwoar = pwoc | split: ',' %}
+      {% for pwo in pwoar %}
+       {% for gwo in collections['gift-wrap'].products %}
+        {% for v in gwo.variants %}
+            {% if v.barcode != 'FREE-GIFTWRAP' and v.barcode contains pwo %}
+              {% if option_count > 0 %}
+                {% assign outstr = outstr | append : '=' %}
+              {% endif %}
+              {% assign outstr = outstr | append : v.id %}
+              {% assign outstr = outstr | append : '=' %}
+              {% assign outstr = outstr | append : gwo.title %}
+              {% assign outstr = outstr | append : ' ' %}
+              {% assign outstr = outstr | append : v.title %}
+              {% assign outstr = outstr | append : '=' %}
+              {% assign price = v.price | money %}
+              {% assign outstr = outstr | append : price  %}
+              {% assign outstr = outstr | append : '=' %}
+              {% assign img = gwo.featured_image | product_img_url: "small" %}
+              {% assign outstr = outstr | append : img %}
+              {% assign option_count = option_count | plus : 1 %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+    {% endfor %}
+{% endif %}
+{% endif %}

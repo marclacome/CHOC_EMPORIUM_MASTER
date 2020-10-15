@@ -1,0 +1,367 @@
+<input type='hidden' id='gift_wrap_ids' value='
+{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+{{prod.first_available_variant.id}},
+{% endfor %}
+'>
+
+<input type='hidden' id='tag_ids' value='
+{% for prod in collections['gift-tag'].products %}
+{{prod.first_available_variant.id}},
+{% endfor %}
+'>
+
+<input type='hidden' id='gift_tag_free_title' value='{% for prod in collections['gift-tag'].products %}{% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}{{prod.title}}{% endif %}{% endfor %}'>
+
+
+
+{% assign gift_wrap_ids = "" %}
+{% assign gift_tag_ids = "" %}
+{% assign gift_wrap_count = 0 %}
+{% assign gift_tag_count = 0 %}
+{% for prod in collections['gift-wrap'].products %}
+  {% if gift_wrap_count > 0 %}
+    {% assign gift_wrap_ids = gift_wrap_ids | append : ',' %}
+  {% endif %}
+  {% assign gift_wrap_ids = gift_wrap_ids | append : prod.first_available_variant.id %}
+  {% assign gift_wrap_count = gift_wrap_count | plus : 1 %}
+{% endfor %}
+{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+  {% if gift_wrap_count > 0 %}
+    {% assign gift_wrap_ids = gift_wrap_ids | append : ',' %}
+  {% endif %}
+  {% assign gift_wrap_ids = gift_wrap_ids | append : prod.first_available_variant.id %}
+  {% assign gift_wrap_count = gift_wrap_count | plus : 1 %}
+{% endfor %}
+{% for prod in collections['gift-tag'].products %}
+  {% if gift_tag_count > 0 %}
+    {% assign gift_tag_ids = gift_tag_ids | append : ',' %}
+  {% endif %}
+  {% assign gift_tag_ids = gift_tag_ids | append : prod.first_available_variant.id %}
+  {% assign gift_tag_count = gift_tag_count | plus : 1 %}
+{% endfor %}
+
+{% if cart.item_count > 0 %}
+  <form action="/cart" method="post" class="cart-form" id="cart-form" novalidate>
+
+    <h1 class="h2">{{ 'cart.general.title' | t }}</h1>
+
+    <!--new pam section-->
+    <div class="grid"><!-- this is the container for the heading of the pam bags if they exist-->
+    	<div class="grid-item" id='PAM-cart-pick-and-mix-title'>
+        	<h4>Pick &amp; Mix bags</h4>
+      	</div>
+    </div>
+    <div id="PAM-cart-display">
+      <!-- content place in here by js -->
+    </div>
+    <!--end new pam section-->
+
+    {% assign line_count = 1 %}
+
+    {% for item in cart.items %}
+      {% assign is_gift_wrap = false %}
+      {% if gift_wrap_ids contains item.variant_id or gift_tag_ids contains item.variant_id %}
+        {% assign is_gift_wrap = true %}
+      {% endif %}
+      {% comment %}
+        handy for emptying cart - so you can delete gift wrap when testing
+        {% assign is_gift_wrap = false %}
+      {% endcomment %}
+
+      {% if is_gift_wrap == false %}
+        <div class="cart-row" data-line="{{ forloop.index }}"  id="cart_item_{{item.variant.id}}">
+          <div class="grid">
+            <div class="grid-item large--seven-twelfths">
+              <div class="grid">
+                <div class="grid-item one-third large--one-quarter">
+                  <a href="{{ item.url }}" class="cart-image" alt="Buy chocolates online - Lindt Lindor UK and USA, Pick & Mix, Ghirardelli chocolates - The Chocolate Company">
+                    <img src="{{ item | img_url: 'medium' }}"  alt="The Chocolate Company - Lindt Lindor UK and USA imported chocolates, Pick & Mix, Ghirardelli.">
+                  </a>
+                </div>
+              <div class="grid-item two-thirds large--three-quarters">
+
+              {% if settings.product_quantity_message and item.variant.inventory_management and item.variant.inventory_quantity <= 0 and item.variant.incoming %}
+                {% assign date = item.variant.next_incoming_date | date: format: 'month_day_year' %}
+                <p><small>{{ 'products.product.will_not_ship_until' | t: date: date }}</small></p>
+              {% endif %}
+
+              {% assign property_size = item.properties | size %}
+              {% assign has_gift_wrap = false %}
+              {% assign gift_wrap_id = -1 %}
+              {% assign tag_id = 'tag_none' %}
+              {% if property_size > 0 %}
+                {% assign requires_giftwrap_explanation = false %}
+                {% for p in item.properties %}
+                    {% assign first_character_in_key = p.first | truncate: 1, '' %}
+                    {% if p.first == 'GIFTWRAP ID' %}
+                      {% assign has_gift_wrap = true %}
+                      {% assign gift_wrap_id = p.last %}
+                      {% if gift_wrap_id != "-1" %}{% assign requires_giftwrap_explanation = true %}{% endif %}
+                    {% elsif p.first == 'GIFT TAG ID' %}
+                      {% assign tag_id = p.last %}
+                      {% if tag_id != 'tag_none' and tag_id != 'gift_tag_free' %}{% assign requires_giftwrap_explanation = true %}{% endif %}
+                    {% else %}
+                      {% if p.first == 'GIFTWRAP' %}
+                        <a href="{{ item.url }}">{{ item.product.title }}</a>
+                          {% unless item.variant.title contains 'Default' %}
+                            <br><small>{{ item.variant.title }}</small>
+                          {% endunless %}
+                          <div class='giftwrap-label'><div class='giftwrap-title'>GIFTWRAP:</div><div class='giftwrap-selected'>{{p.last}}</div></div><!-- GIFTWRAP :-->
+                      {% elsif p.first == 'GIFT MESSAGE' %}
+                        <div class='giftwrap-label'><div class='giftwrap-title'>MESSAGE:</div><div class='giftwrap-selected'>{{p.last | strip_html}}</div></div><!-- GIFT MESSAGE :-->
+                      {% elsif p.first == 'GIFT TAG' %}
+                        <div class='giftwrap-label'><div class='giftwrap-title'>GIFT TAG:</div><div class='giftwrap-selected'>{{p.last}}</div></div><!-- GIFT TAG :-->
+                      {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if requires_giftwrap_explanation %}
+                  <div class='giftwrap-label'><div class='giftwrap-explanation'>{{settings.giftwrap_cart_explanation}}</div></div><!-- GIFT TAG :-->
+                {% endif %}
+              {% else %} <!-- no properties -->
+                <a href="{{ item.url }}">{{ item.product.title }}</a>
+                {% unless item.variant.title contains 'Default' %}
+                  <br><small>{{ item.variant.title }}</small>
+                {% endunless %}
+              {% endif %} <!-- property_size > 0 -->
+            </div>
+          </div>
+        </div>
+
+{%comment%}NON GIFT WRAP ITEM QUANTITY{%endcomment%}
+        <div class="grid-item large--five-twelfths medium--two-thirds push--medium--one-third">
+          <div class="grid">
+            <div class="grid-item one-half medium-down--one-third text-right">
+            {% if has_gift_wrap == true or is_gift_wrap == true %}
+              <div style='display:none'>
+                <input type="number" name="updates[]" id="line_{{ line_count }}" value="{{ item.quantity }}" min="0" data-line="{{ line_count }}">
+              </div>
+              <div class='fixed-cart-quantity' id='fixed_cart_quantity_{{item.variant.id}}'>{{item.quantity}}</div>
+            {% else %}
+              <input type="number" name="updates[]" id="quantity_line_{{ line_count }}" value="{{ item.quantity }}" min="0" data-line="{{ line_count }}" >
+              <div class="update-quantity" onclick='PAM.adjust_line_item_quantity({{line_count}})'>Update Quantity</div>
+            {% endif %}
+            </div>
+
+{%comment%}NON GIFT WRAP ITEM PRICE{%endcomment%}
+            <div class="grid-item one-third medium-down--one-third medium-down--text-left text-right">
+              {% if item.original_line_price != item.line_price %}
+                  <small class="cart-item--original-price"><s>{{ item.original_price | money }}</s></small>
+              {% endif %}
+              <span class="h2">
+                {% include 'price' with item.price %}
+    				 <!--PAM MOD-->
+                {% assign total_price = item.price | times : item.quantity %}
+                {% include 'price' with total_price %}
+                <!-- -->
+              </span>
+            </div>
+
+{%comment%}NON GIFT WRAP ITEM REMOVE BUTTON{%endcomment%}
+            <div class="grid-item one-sixth medium-down--one-third text-right">
+            {% if is_gift_wrap == false %}
+              {% if has_gift_wrap == false%}
+                <a href="/cart/change?line={{ line_count }}&amp;quantity=0" data-line="{{ line_count }}" class="icon-fallback-text btn-secondary remove">
+                  <span class="icon icon-x" aria-hidden="true"></span>
+                  <span class="fallback-text">{{ 'cart.general.remove' | t }}</span>
+                </a>
+              {% else %}
+                <a href="javascript:PAM.remove_product_with_giftwrap({{line_count}},{{gift_wrap_id}},'{{tag_id}}')" class="icon-fallback-text btn-secondary remove">
+                  <span class="icon icon-x" aria-hidden="true"></span>
+                  <span class="fallback-text">{{ 'cart.general.remove' | t }}</span>
+                </a>
+              {% endif %}
+            {% endif %}
+            </div>
+
+{%comment%}NON GIFT WRAP ITEM DISCOUNT???{%endcomment%}
+            <div class="grid-item one-whole text-right small--text-left">
+              {% for discount in item.discounts %}
+                <small class="cart-item--discount">{{ discount.title }}</small>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endif %} <!-- ! is gift wrap -->
+    {% assign line_count = line_count | plus : 1 %}
+{% endfor %} <!-- for item in cart.items -->
+
+
+{%comment%}
+GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP GIFT WRAP
+repeat the loop for gift wrap items
+{%endcomment%}
+
+{% assign line_count = 1 %}
+{% for item in cart.items %}
+  {% assign is_gift_wrap = false %}
+  {% if gift_wrap_ids contains item.variant_id %}
+    {% assign is_gift_wrap = true %}
+  {% endif %}
+
+
+  {% if is_gift_wrap == true %}
+    <div class='cart-row' id="cart_item_{{item.variant.id}}">
+      <div class="grid">
+        <div class="grid-item large--seven-twelfths" >
+          <div class="grid">
+             <div class="grid-item one-third large--one-quarter">
+              <a href="{{ item.url }}" class="cart-image" alt="Buy chocolates online - Lindt Lindor UK and USA, Pick & Mix, Ghirardelli chocolates - The Chocolate Company">
+                <img src="{{ item | img_url: 'medium' }}"  alt="The Chocolate Company - Lindt Lindor UK and USA imported chocolates, Pick & Mix, Ghirardelli.">
+              </a>
+            </div>
+
+            <div class="grid-item two-thirds large--three-quarters">
+              {{item.product.title}}
+            </div>
+          </div>
+        </div>
+        <div class="grid-item large--five-twelfths medium--two-thirds push--medium--one-third">
+          <div class="grid">
+            <div class="grid-item one-half medium-down--one-third text-right">
+              <div style='display:none'>
+                <input type="number" name="updates[]" id="line_{{ line_count }}" value="{{ item.quantity }}" min="0" data-line="{{ line_count }}" >
+              </div>
+              <div class='fixed-cart-quantity' id='fixed_cart_quantity_{{item.variant.id}}'>{{ item.quantity }}</div>
+            </div>
+            <div class="grid-item one-third medium-down--one-third medium-down--text-left text-right">
+              {% if item.original_line_price != item.line_price %}
+                <small class="cart-item--original-price"><s>{{ item.original_price | money }}</s></small>
+              {% endif %}
+              <span class="h2">
+                {% include 'price' with item.price %}
+                <!--PAM MOD-->
+                {% assign total_price = item.price | times : item.quantity %}
+                {% include 'price' with total_price %}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}<!-- is gift wrap -->
+  {% assign line_count = line_count | plus : 1 %}
+{% endfor %}
+
+{%comment%}
+GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG GIFT TAG
+repeat the loop for gift tag items
+{%endcomment%}
+
+{% assign line_count = 1 %}
+
+{% for item in cart.items %}
+{% assign is_gift_wrap = false %}
+{% if gift_tag_ids contains item.variant_id %}
+  {% if item.title != 'GIFT WRAP GIFT TAG FREE' %}
+    {% assign is_gift_wrap = true %}
+  {% endif %}
+{% endif %}
+{% if is_gift_wrap == true %}
+<div class='cart-row' id="cart_item_{{item.variant.id}}">
+  <div class="grid">
+    <div class="grid-item large--seven-twelfths">
+      <div class="grid">
+        <div class="grid-item one-third large--one-quarter">
+          <a href="{{ item.url }}" class="cart-image" alt="Buy chocolates online - Lindt Lindor UK and USA, Pick & Mix, Ghirardelli chocolates - The Chocolate Company">
+            <img src="{{ item | img_url: 'medium' }}"  alt="The Chocolate Company - Lindt Lindor UK and USA imported chocolates, Pick & Mix, Ghirardelli.">
+          </a>
+        </div>
+        <div class="grid-item two-thirds large--three-quarters">
+          {{item.product.title}}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-item large--five-twelfths medium--two-thirds push--medium--one-third">
+      <div class="grid">
+        <div class="grid-item one-half medium-down--one-third text-right">
+          <div style='display:none'>
+            <input type="number" name="updates[]" id="line_{{ line_count }}" value="{{ item.quantity }}" min="0" data-line="{{ line_count }}" >
+          </div>
+          <div class='fixed-cart-quantity' id='fixed_cart_quantity_{{item.variant.id}}'>{{ item.quantity }}</div>
+        </div>
+        <div class="grid-item one-third medium-down--one-third medium-down--text-left text-right">
+          {% if item.original_line_price != item.line_price %}
+            <small class="cart-item--original-price"><s>{{ item.original_price | money }}</s></small>
+          {% endif %}
+          <span class="h2">
+            {% include 'price' with item.price %}
+              <!--PAM MOD-->
+              {% assign total_price = item.price | times : item.quantity %}
+              {% include 'price' with total_price %}
+              <!-- -->
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+{% assign line_count = line_count | plus : 1 %}
+{% endfor %}
+
+
+    <div class="cart-row">
+      <div class="grid">
+
+        {% if settings.cart_notes_enable %}
+          <div class="grid-item large--one-half">
+            <label for="cartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
+            <textarea name="note" class="input-full" id="cartSpecialInstructions">{{ cart.note }}</textarea>
+          </div>
+        {% endif %}
+
+
+ 	<div style='display:none'>
+        <textarea id='attributes_PICK-AND-MIX-INFO' name="attributes[PICK-AND-MIX-INFO]">NO PICK AND MIX INFO</textarea>
+      <input type='hidden' name="attributes[VERSION_CART]" id='attributes_version_cart' value='1.00'>
+        </div>
+
+        <div class="grid-item text-right small--text-center {% if settings.cart_notes_enable %}large--one-half{% endif %}">
+
+          <div class="cart-subtotal">
+            {{ 'cart.general.subtotal' | t }}
+            <span class="h1 cart-subtotal--price">
+              {% include 'price' with cart.total_price %}
+            </span>
+            {% if cart.total_discounts > 0 %}
+             {% assign savings = cart.total_discounts | money %}
+             <small class="cart-subtotal--savings">{{ 'cart.general.savings_html' | t: price: savings }}</small>
+            {% endif %}
+          </div>
+
+          <p class="cart-subtotal__note"><em>{{ 'cart.general.taxes_extra' | t }}</em></p>
+
+        <!--  <input type="submit" name="update" class="btn-secondary update-cart" value="{{ 'cart.general.update' | t }}"> -->
+
+          <button type="submit" name="checkout" class="btn">
+            <span class="icon icon-cart"></span>
+            {{ 'cart.general.checkout' | t }}
+          </button>
+
+		{% comment %}
+          {% if additional_checkout_buttons %}
+            <div class="additional-checkout-buttons">{{ content_for_additional_checkout_buttons }}</div>
+          {% endif %}
+		{% endcomment %}
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+
+{% else %}
+
+  <h2>{{ 'cart.general.empty' | t }}</h2>
+  <!--<p>{{ 'cart.general.continue_browsing_html' | t }}</p>-->
+<p><a class="back-btn" href='/collections/'>Browse collections</a>
+OR
+<a class="back-btn" href='/collections/pick-and-mix?view=pam-template-paginate'>browse Pick and Mix</a></p>
+
+{% endif %}

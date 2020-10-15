@@ -1,0 +1,186 @@
+{% if settings.developer_mode %}
+<div class="developer-label">[snippets PAM_template]</div>
+{% endif %}
+
+
+<input type='hidden' id='gift_wrap_ids' value='
+{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+{{prod.first_available_variant.id}},
+{% endfor %}
+'>
+
+{% assign varcount = 1 %}
+{% assign sz = collections['pick-and-mix-gift-wrap'].products | size %}
+{% assign total_variants = 0 %}
+{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+	{% assign this_size = prod.variants | size %}
+	{% assign total_variants = total_variants | plus : this_size %}
+{% endfor %}
+<input type='hidden' id='pam_gift_wrap_options' value='[
+	{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+		{% for var in prod.variants %}
+			{% if var.barcode == 'FREE-GIFTWRAP' %}
+				{"title":"{{prod.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
+			{% else %}
+				{"title":"{{prod.title}} {{var.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
+			{% endif %}
+			{% if varcount < total_variants %}
+				,
+				{% endif %}
+				{% assign varcount = varcount | plus:1 %}
+			{% endfor %}
+	{% endfor %}
+]'>
+
+
+<input type='hidden' id='pam_gift_wrap_filter' value='{{collections['pick-and-mix-gift-wrap'].description}}'>
+
+
+{% include 'breadcrumb' %}
+
+{% assign grid_item_width = 'large--one-quarter medium-down--one-half' %}
+
+	<div id='PAM-bag-complete'style="display: none">
+      <div class="grid">
+     	<div class="grid-item large--text-center medium-down--text-center">
+          <img src="{{ 'pamcomplete.jpg' | asset_url }}"/>
+
+      		<h1>Thank you, you have now completed your bag!</h1>
+     	</div>
+  		</div>
+     	<div class="grid">
+       		<div class="grid-item large--five-twelfths large--text-right medium-down--text-center">
+  				<div class='PAM-new-bag-button btn' onclick='PAM.show_new_bag_popup()'>CREATE ANOTHER BAG</div>
+       		</div>
+       		<div class="grid-item large--two-twelfths large--text-center medium-down--text-center">
+         		or
+       		</div>
+       		<div class="grid-item large--five-twelfths large--text-left medium-down--text-center">
+  				<div class='PAM-continue-shopping-button btn' onclick='window.location.href="/collections/all"'>CONTINUE SHOPPING</div>
+       		</div>
+     	</div>
+    </div>
+
+<div id="PAM-fill-bag"  style='display:none'>
+<div id='PAM-product-grid' class="grid" style='display:block'>
+  <div class="grid-item large--two-thirds">
+    <h2>Pick &amp; Mix</h2>
+    <p>Please select your flavours and the amount of each flavour until your bag is complete, then select 'Complete this bag' to add your bag to your basket.</p>
+
+		<div id='pam_brand_filter_wrap'>
+			<div class='pick-and-mix-brand-button{% if selected_brand == 'ALL' %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('ALL')><span class='pick-and-mix-button-brand-title'>
+		SHOW ALL</span></div>
+
+          {% comment %}
+		{% for c in collections %}
+		{% unless c.handle contains 'pick-and-mix-brand-lindt-usa' %}
+		  {% if c.handle contains 'pick-and-mix-brand'  %}
+		    <div class='pick-and-mix-brand-button{% if c.handle contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('{{c.handle}}')><span class='pick-and-mix-button-brand-title'>
+				{{c.description}}</span></div>
+		  {% endif %}
+		{%endunless%}
+		{% endfor %}
+          {% endcomment %}
+                    
+          
+		<div class='pick-and-mix-brand-button{% if 'lindt' == selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-lindt')><span class='pick-and-mix-button-brand-title'>
+		LINDT</span></div>
+          <div class='pick-and-mix-brand-button{% if 'lindt-lindor' == selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-lindt-lindor')><span class='pick-and-mix-button-brand-title'>
+		LINDT LINDOR</span></div>
+		<div class='pick-and-mix-brand-button{% if 'ghirardelli' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-ghirardelli')><span class='pick-and-mix-button-brand-title'>
+		GHIRARDELLI</span></div>
+		<div class='pick-and-mix-brand-button{% if 'godiva' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-godiva')><span class='pick-and-mix-button-brand-title'>
+		GODIVA</span></div>
+		<div class='pick-and-mix-brand-button{% if 'monty-bojangles' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-monty-bojangles')><span class='pick-and-mix-button-brand-title'>
+		MONTY BOJANGLES</span></div>
+		<div class='pick-and-mix-brand-button{% if 'niederegger' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-niederegger')><span class='pick-and-mix-button-brand-title'>
+		NIEDEREGGER</span></div>
+		<div class='pick-and-mix-brand-button{% if 'liqueurs' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-liqueurs')><span class='pick-and-mix-button-brand-title'>
+		LIQUEURS</span></div>
+		<div class='pick-and-mix-brand-button{% if 'seasonal' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-seasonal')><span class='pick-and-mix-button-brand-title'>
+		SEASONAL</span></div>
+		<div class='pick-and-mix-brand-button{% if 'everything-else' contains selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-everything-else')><span class='pick-and-mix-button-brand-title'>
+		EVERYTHING ELSE</span></div>
+          
+          
+          
+		</div>
+
+    <div class='pam-paginate-select'>
+
+
+      {{ITEMS_PER_PAGE_NAVIGATION}}
+	</div>
+
+<div id='normal_display' style='display:none'>
+	{% paginate collections[{{PAM_brand}}].products by PAM_paginate_max %}
+	     <div class="grid-uniform">
+	    {% for product in collections[{{PAM_brand}}].products %}
+	      {% include 'product-grid-item' %}
+	      {% endfor %}
+	    </div>
+				{% if paginate.pages > 1 %}
+					<div class="pagination">
+					  {% include 'pagination-custom' %}
+					</div>
+	      {% endif %}
+	{% endpaginate %}
+</div>
+
+<div id='whereweat_display' style='display:block'>
+{% if PAM_brand == 'pick-and-mix' %}
+	{% assign PAM_brand = 'pick-and-mix-usa'%}
+{% endif %}
+{% if PAM_brand contains 'lindt' %}
+	{% assign PAM_brand = 'pick-and-mix-brand-lindt-usa' %}
+{% endif %}
+	{% paginate collections[{{PAM_brand}}].products by PAM_paginate_max %}
+	     <div class="grid-uniform">
+	    {% for product in collections[{{PAM_brand}}].products %}
+	      {% include 'product-grid-item' %}
+	      {% endfor %}
+	    </div>
+				{% if paginate.pages > 1 %}
+					<div class="pagination">
+					  {% include 'pagination-custom' %}
+					</div>
+	      {% endif %}
+	{% endpaginate %}
+</div>
+
+
+
+
+  <div class="rte">
+      {{ page.content }}
+    </div>
+  </div>
+
+  <div class="grid-item large--one-third">
+<!--		<div id='pam-bag-display-wrap' style="position:fixed"> -->
+    	<h4 class="pam-panel-header">YOUR PICK &AMP; MIX BAG</h4>
+    		<div class="pam-panel-detail">
+  				<div id='PAM-bags-existing' class="pam-bag-list"></div>
+     		</div><!--close pam-panel-->
+  		</div>
+<!--		</div> -->
+	</div><!--PAM product grid-->
+
+
+<div id='PAM-product-details' class='grid' style='display:none'>
+  <div class="grid-item large--three-fifths push--one-fifth">
+  <a class="pam-back-btn" href='javascript:PAM.hide_product_details()'>Back to Pick and Mix</a>
+  <div><span id='product-details-title'></span></div>
+  <div><img id='product-details-image' src='' alt="The Chocolate Company - chocolates to buy online, Pick & Mix"></div>
+  <div><span id='product-details-text'></span></div>
+    <div id="product_reviews"></div>
+  </div>
+</div>
+
+
+</div><!--PAM-fill-bag-->
+<div id='js_cleaner' style='display:none'></div>
+
+{% if settings.developer_mode %}
+<div class="developer-label">[/snippets PAM_template]</div>
+{% endif %}

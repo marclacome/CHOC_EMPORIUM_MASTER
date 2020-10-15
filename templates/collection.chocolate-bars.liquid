@@ -1,0 +1,172 @@
+{% assign url_ar = request.path | split: '/' %}
+{% assign brand = url_ar | last %}
+{% assign col_name = 'choc_bars_' | append : brand  %}
+
+{% assign collection = collections[brand] %}
+
+
+{% if collection.handle contains 'all' or collection.handle contains 'ALL' %}
+<script>
+  window.location = '/collections';
+</script>
+{% endif %}
+
+
+{% if collection.handle contains 'pick-and-mix' %}
+<script>
+  window.location = '/collections/pick-and-mix?view=pam-template-paginate';
+</script>
+{% endif %}
+
+
+
+
+
+{% paginate collection.products by 50 %}
+
+{% include 'breadcrumb' %}
+
+
+{% comment %}
+{% if collection.all_tags.size > 0 %}
+  {% assign has_sidebar = true %}
+{% endif %}
+{% endcomment %}
+
+
+
+<div class="grid grid-border">
+
+  {% if has_sidebar %}
+  <aside class="sidebar grid-item large--one-fifth collection-filters" id="collectionFilters">
+    {% include 'collection-sidebar' %}
+  </aside>
+  {% endif %}
+
+
+  <div class="grid-item{% if has_sidebar %} large--four-fifths grid-border--left{% endif %}">
+	
+    {% comment %}
+      Different markup if description is set
+    {% endcomment %}
+    {% if collection.description != blank %}
+      <header class="section-header">
+       {% include 'chocolate-bars-filter' %}
+        
+        {% comment %}
+        <div class="rte rte--header">
+          {{ collection.description }}
+        </div>
+        {% endcomment %}
+      </header>
+      <hr{% if has_sidebar %} class="hr--offset-left"{% endif %}>
+      <div class="section-header">
+        <div class="section-header--right">
+          {% comment %}
+          {% include 'collection-sorting' %}
+          {% endcomment %}
+          {% comment %}
+          REMOVED TOGGLE FILTERS FROM SMALL
+          {% include 'toggle-filters' %}
+          {% endcomment %}
+        </div>
+        
+      </div>
+    {% else %}
+    <header class="section-header">
+      <h1 class="section-header--title section-header--left h1">{{ collection.title }}</h1>
+      <div class="section-header--right">
+        {% include 'collection-sorting' %}
+
+
+        {% comment %}
+        REMOVED TOGGLE FILTERS FROM SMALL
+
+        {% include 'toggle-filters' %}
+        {% endcomment %}
+      </div>
+      
+    </header>
+    {% endif %}
+   
+
+    <!--V6 - whereat.js will hide this div if reqd -->
+
+    <div class="grid-uniform" id="normal_display" style="display:none">
+      {% for product in collection.products %}
+        {% if has_sidebar %}
+          {% assign grid_item_width = 'large--one-quarter medium--one-third small--one-half' %}
+        {% else %}
+          {% assign grid_item_width = 'large--one-fifth medium--one-third small--one-half' %}
+        {% endif %}
+    	{% unless product.tags contains "OPTION-PICK-AND-MIX-GIFT-WRAP" %}
+		{% include 'product-grid-item' %}
+      {% endunless %}
+      {% else %}
+        <div class="grid-item">
+          <p>{{ 'collections.general.no_matches' | t }}</p>
+        </div>
+      {% endfor %}
+
+    {% if paginate.pages > 1 %}
+      <div class="grid-item pagination-border-top">
+        <div class="grid">
+          <div class="grid-item{% if has_sidebar %} large--four-fifths push--large--one-fifth{% endif %}">
+              <div class="text-center">
+                {% include 'pagination-custom' %}
+              </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!--V6 - whereat.js will hide this div if reqd -->
+{% if settings.usa_override_enable %}
+      <div class="grid-uniform" id="whereweat_display" style="display:block">
+      {% if collection.handle contains 'lindt-lindor' %}
+        {%assign collection = collections['lindt-lindor-uk-truffles']%}
+      {% endif %}
+      {% if collection.handle contains 'special-offers' %}
+        {% assign collection = collections['special-offers-reduced']%}
+      {% endif %}
+        
+      {% for product in collection.products %}
+        {% if has_sidebar %}
+          {% assign grid_item_width = 'large--one-quarter medium--one-third small--one-half' %}
+        {% else %}
+          {% assign grid_item_width = 'large--one-fifth medium--one-third small--one-half' %}
+        {% endif %}
+        {% unless product.tags contains "OPTION-PICK-AND-MIX-GIFT-WRAP" %}
+          {% include 'product-grid-item' %}
+        {% endunless %}
+        {% else %}
+          <div class="grid-item">
+            <p>{{ 'collections.general.no_matches' | t }}</p>
+          </div>
+      {% endfor %}
+
+     {% if paginate.pages > 1 %}
+      <div class="grid-item pagination-border-top">
+        <div class="grid">
+          <div class="grid-item{% if has_sidebar %} large--four-fifths push--large--one-fifth{% endif %}">
+              <div class="text-center">
+                {% include 'pagination-custom' %}
+              </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+{% endif %} {%comment%}settings.usa_override_enable{%endcomment%}
+
+  </div>
+
+
+
+
+  </div>
+
+
+</div>
+
+{% endpaginate %}

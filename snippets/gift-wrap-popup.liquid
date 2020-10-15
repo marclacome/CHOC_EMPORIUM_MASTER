@@ -1,0 +1,76 @@
+<div id="popup-mask" class='popup-container'>
+</div>
+
+<div id="popupBoxPamNameWrapper" class="popup-box">
+  <div class="popupBoxContent">
+  <h2>Pick &amp; Mix</h2>
+  <p>Please select your flavours and the amount of each flavour until your bag is complete, then select 'Complete this bag' to add your bag to your basket.</p>
+      <h2>Enter a Bag Name (optional)</p><input type='text' id='new_bag_name' value=''></h2>
+      <div  class='popup-button' onclick='PAM.add_empty_bag()'>Next</div>
+    </div>
+</div>
+
+
+{% if template contains 'pam' %}
+<div id="popupBoxWrapper" class="popup-box">
+<div class="close-btn" onclick='hide_all_popups()'>X</div>
+        <div class="popupBoxContent">
+        <div class='popupBoxDetails' id='popupBoxPamWrap_details'>Pick and Mix Selection</div>
+              <h3>{{settings.offer_gift_wrap_text}}</h3>
+              <div id='pam_giftwrap_table'>
+              </div>
+        </div>
+</div>
+
+{% else %}
+
+<!-- direct to cart - select gift wrap -->
+<div id="popupBoxWrapper" class="popup-box">
+<div class="close-btn" onclick='hide_all_popups()'>X</div>
+     <div class="popupBoxContent">
+        <div class='popupBoxDetails' id='popupBoxWrap_details'></div>
+        <div id="wrap_popup_offer_multiple">Link in here to multiple products</div>
+        <h3>{{settings.offer_gift_wrap_text}}</h3>
+        <div id ='direct-to-cart-gift-wrap-options'></div>
+     </div>
+</div>
+
+{% endif %}
+
+<!-- direct to cart - enter message -->
+<div id="popupBoxMessageWrapper" class="popup-box">
+<div class="close-btn" onclick='hide_all_popups()'>X</div>
+  <div class="popupBoxContent">
+  <div class='popupBoxDetails' id='popupBoxMessage_details'></div>
+    <h2>{{settings.offer_gift_message_text}}</h2>
+    {% include 'gift-message-buttons' %}
+</div>
+
+{% if template contains 'pam' %}
+<!-- pam bag added to basket confirmation -->
+<div id="popupBoxConfirmationWrapper" class="popup-box">
+<div class="close-btn" onclick='hide_all_popups()'>X</div>
+  <div class="popupBoxContent">
+    <div class='popupBoxDetails' id='popupBoxConfirmation_details'></div>
+    <div class='popup-button' onclick='PAM.add_empty_bag()'>Create Another Bag</div>
+    <div class='popup-button' onclick='continue_shopping_from_pam()'>Continue Shopping</div>
+    <div class='popup-button' onclick='go_cart()'>Go to Basket</div>
+  </div>
+</div>
+{% else %}
+<!-- product added to basket confirmation -->
+<div id="popupBoxConfirmationWrapper" class="popup-box">
+  <div class="popupBoxContent">
+    <div class='popupBoxDetails' id='popupBoxConfirmation_details'></div>
+    <div class='popup-button' onclick='continue_shopping()'>Continue Shopping</div>
+    <div class='popup-button' onclick='go_cart()'>Go to Basket</div>
+  </div>
+</div>
+{% endif %}
+
+<div id="popupBoxGeneralInform" class="popup-box">
+<div class="popupBoxContent">
+  <div class='popupBoxDetails' id='popupBoxInform_message'></div>
+  <div class='popup-button' id='inform_ok_button' >OK</div>
+</div>
+</div>

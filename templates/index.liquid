@@ -1,0 +1,90 @@
+{% assign product_count = 1 %}
+{% assign number_of_index_sections = 0 %}
+
+{% unless settings.home_section_1 == blank %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_1 %}
+{% endunless %}
+
+
+
+<!--new index page big buttons-->
+ <div class="grid">
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+     <a href = '/collections/pick-and-mix?view=pam-template-paginate'>
+     <img src="{{ 'new-home-btn-pickandmix.png' | asset_url }}" alt="Pick and Mix - Lindt Lindor, Ghirardelli chocolates" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+        <a href = '/collections/lindt-lindor-uk/'>
+     <img src="{{ 'new-home-btn-lindt-lindor.png' | asset_url }}" alt="Lindt Lindor, Pick and Mix USA and UK Flavours from The Chocolate Emporium" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+        <a href = '/collections/ghirardelli-chocolate-squares/'>
+     <img src="{{ 'new-home-btn-ghirardelli.png' | asset_url }}" alt="Ghirardelli chocolates online, Pick and Mix chocolates from The Chocolate Emporium" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/monty-bojangles-truffles/'>
+     <img src="{{ 'new-home-btn-monty-b.png' | asset_url }}" alt="Monty Bojangles luxury truffles from The Chocolate Emporium" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/best-of-the-rest/'>
+     <img src="{{ 'new-home-btn-best-rest.png' | asset_url }}" alt="Selected brand chocolates collection, Godiva and more, from The Chocolate Emporium" itemprop="url">
+     </a>
+   </div>
+   <!--new chocbars and handmade btns-->
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/variety-bags/'>
+     <img src="{{ 'new-home-btn-variety-bags.png' | asset_url }}" alt="Variety bags, Pick and Mix - Lindt Lindor, Ghirardelli chocolates" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/chocolate-bars/'>
+     <img src="{{ 'new-home-btn-chocolate-bars.png' | asset_url }}" alt="Chocolate bars, Variety bags, Pick and Mix - Lindt Lindor, Ghirardelli chocolates" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/chocolate-gifts/'>
+     <img src="{{ 'new-home-btn-gifts.png' | asset_url }}" alt="The Chocolate Emporium chocolate gifts" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/drinking-chocolate/'>
+     <img src="{{ 'new-home-btn-drinking-choc.png' | asset_url }}" alt="The Chocolate Emporium drinking chocolate" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-fifth medium--one-half small--one-half home-btn">
+   <a href = '/collections/special-offers/'>
+     <img src="{{ 'new-home-btn-special-offers.png' | asset_url }}" alt="The Chocolate Emporium special offers" itemprop="url">
+     </a>
+   </div>
+</div>
+<hr>
+<!--end new index page big buttons-->
+
+{% unless settings.home_section_2 == blank %}
+  {% unless number_of_index_sections == 0 %}
+  <!--<hr>-->
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_2 %}
+{% endunless %}
+
+{% unless settings.home_section_3 == blank %}
+  {% unless number_of_index_sections == 0 %}
+ <!--<hr>-->
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_3 %}
+{% endunless %}
+
+{% unless settings.home_section_4 == blank %}
+  {% unless number_of_index_sections == 0 %}
+ <!--<hr>-->
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_4 %}
+{% endunless %}

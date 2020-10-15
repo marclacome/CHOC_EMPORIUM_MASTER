@@ -1,0 +1,41 @@
+
+{% assign filter_string = "" %}
+{% for p in collection.products %}
+	{% assign search_str = p.vendor | append : ',' %}
+
+	{% if filter_string contains search_str %}
+		{% assign nonesuch=0 %}
+	{% else %}
+		{% assign filter_string = filter_string | append : search_str %}
+	{% endif %}
+{% endfor %}
+
+{% assign clastr = 'pick-and-mix-brand-button chocbar-filter' %}
+{% if template == 'collection' %}
+      {% assign clastr = clastr | append : ' pick-and-mix-brand-selected' %}
+{% endif %}
+
+		<a class='{{clastr}}' href='/collections/chocolate-bars'>All</a>
+{% for c in collections %}
+	{% if c.title contains 'CHOC_BARS' %}
+		{% assign clastr = 'pick-and-mix-brand-button chocbar-filter' %}
+		{% assign titdowncase = c.title | downcase %}
+		{% if  brand == titdowncase %} 
+                  {% assign clastr = clastr | append : ' pick-and-mix-brand-selected' %}
+		{% endif %}
+		<a class="{{clastr}}"  href='/collections/chocolate-bars/{{c.handle}}?view=chocolate-bars'>{{c.description}}</a>
+	{% endif %}		
+{% endfor %}
+
+
+{% comment %}
+{% assign filter_ar = filter_string | split:',' | uniq %}
+{% for brand in filter_ar %}
+<a class='pick-and-mix-brand-button chocbar-filter' href='/collections/chocolate-bars/{{brand}}?view=chocolate-bars'>{{brand}}</a>
+{% endfor %}
+{% endcomment %}
+
+
+
+
+

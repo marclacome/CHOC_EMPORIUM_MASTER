@@ -1,0 +1,13 @@
+{% if func_call == 'get_gift_wrap_details' %}
+  {% assign gwd = all_products.gift-wrap-variations %}
+  {% assign gift-wrap-details_str = gwd.description %}
+  {% assign gift-wrap-details_outer_ar = gift-wrap-details_str | split : "[" %}
+  {% for gwd1 in gift-wrap-details_outer_ar %}
+    {% assign gwd2 = gwd1 | remove: "]" %}
+    {% assign gwd2b = gwd1 | split: "]" %}
+    {% assign gwd3 = gwd2b[0] | split : "=" %}
+      {% if gwd3[0] == variant.title %}
+        {% assign gift_wrap_details = gwd3[1]%}
+      {% endif %}
+  {% endfor %}
+{% endif %}

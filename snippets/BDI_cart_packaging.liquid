@@ -1,0 +1,56 @@
+{% if settings.developer_mode %}
+<div class="developer-label">[BDI cart_packaging snippet]</div>
+{% endif %}
+{% assign packaging_count = 0 %}
+{% assign packaging_string = "" %}
+{% assign packaging_metadata = "\r\n" %}
+    {% for item in cart.items %}
+        {% if item.product.description contains "[PACK]" %}
+            {% assign add_packaging = true %}
+            {% for p in item.properties %}
+                {% if p.first == 'GIFTWRAP' or p.first == 'GIFT MESSAGE' %}
+                    {% assign add_packaging = false %}
+                {% endif %}
+            {% endfor %}
+            {% if add_packaging == true %}
+                {% assign packaging_count = packaging_count | plus : item.quantity %}
+                {% assign packaging_string = packaging_string | append:"<li>" | append: item.quantity | append: " " | append: item.title | append:"</li>" %}
+                {% assign title = item.title | remove:","|append:", " %}
+				{% assign title = title | append: "\r\n" %}
+                {% assign packaging_metadata = packaging_metadata   | append: item.quantity|  append: " "| append: title %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+{% if packaging_count > 1%}    
+        <div class="cart-row">
+        <div class="grid text-center" style="border:solid 1px silver; padding:1rem; margin: 1rem">
+
+            <div>
+            {{settings.invite_packaging}}
+            </div>
+            <div><ul>{{packaging_string}}</ul>
+            <div class="grid reduce-plastic-choice-buttons" style="margin-top: 1rem;">
+              <div class="grid-item large--one-half" style="text-align: center;">
+              	<button type="button" class="btn" onclick="PAM.beforeCheckout('{{packaging_metadata}}', {{settings.bdi_checkout_tempt_enable}})"><span class="icon icon-cart"></span>{{settings.packaging_yes_button}}</button>
+              </div>
+              <div class="grid-item large--one-half" style="text-align: center;">
+              	<button type="button" class="btn" onclick="PAM.beforeCheckout('', {{settings.bdi_checkout_tempt_enable}})"><span class="icon icon-cart"></span>{{settings.packaging_no_button}}</button>
+              </div>
+            </div>
+            </div>
+            </div>
+{% else %}
+  			<button type="button" name="popup_checkout_btn" id="popup_checkout_btn" class="btn" onclick="PAM.beforeCheckout('', {{settings.bdi_checkout_tempt_enable}})">
+           	 <span class="icon icon-cart"></span>
+           	 {{ 'cart.general.checkout' | t }}
+          	</button>
+{% endif %}
+    
+
+
+
+{% if settings.developer_mode %}
+<div class="developer-label">[/BDI cart_packaging snippet]</div>
+{% endif %}
+

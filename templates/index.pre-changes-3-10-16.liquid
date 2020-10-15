@@ -1,0 +1,57 @@
+{% assign product_count = 1 %}
+{% assign number_of_index_sections = 0 %}
+
+{% unless settings.home_section_1 == blank %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_1 %}
+{% endunless %}
+
+<!--new index page big buttons-->
+ <div class="grid">
+   <div class="grid-item large--one-quarter medium--one-half small--one-half home-btn">
+     <a href = '/collections/pick-and-mix?view=pam-template-paginate'>
+     <img src="{{ 'home-btn-pickandmix.png' | asset_url }}" alt="Pick & Mix - Lindt Lindor, Ghirardelli chocolates" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-quarter medium--one-half small--one-half home-btn">
+        <a href = '/collections/selection-bags/'>
+     <img src="{{ 'home-btn-lindor.png' | asset_url }}" alt="Lindt Lindor, Pick and Mix USA and UK Flavours" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-quarter medium--one-half small--one-half home-btn">
+        <a href = '/collections/ghirardelli-chocolate-squares/'>
+     <img src="{{ 'home-btn-ghirardelli.png' | asset_url }}" alt="Ghirardelli chocolates online, Pick & Mix chocolates" itemprop="url">
+     </a>
+   </div>
+   <div class="grid-item large--one-quarter medium--one-half small--one-half home-btn">
+   <a href = '/collections/variety-bags/'>
+     <img src="{{ 'home-btn-variety.png' | asset_url }}" alt="Variety bags, Pick and Mix - Lindt Lindor, Ghirardelli chocolates" itemprop="url">
+     </a>
+   </div>
+
+</div>
+<!--end new index page big buttons-->
+
+{% unless settings.home_section_2 == blank %}
+  {% unless number_of_index_sections == 0 %}
+  <hr>
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_2 %}
+{% endunless %}
+
+{% unless settings.home_section_3 == blank %}
+  {% unless number_of_index_sections == 0 %}
+ <hr>
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_3 %}
+{% endunless %}
+
+{% unless settings.home_section_4 == blank %}
+  {% unless number_of_index_sections == 0 %}
+  <hr>
+  {% endunless %}
+  {% assign number_of_index_sections = number_of_index_sections | plus: 1 %}
+  {% include settings.home_section_4 %}
+{% endunless %}

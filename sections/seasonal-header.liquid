@@ -1,0 +1,59 @@
+<div id="season-header" class="season grid--full">
+  <div class="season-holder">
+    <div class="grid-item large--one-third medium--one-third season-img small--hide text-right">
+    	<img src="{{ section.settings.season-image | img_url: 'large' }}" alt="The Chocolate Emporium">
+    </div>
+    <div class="grid-item large--one-third medium--one-third small--two-thirds season-text">
+    	<div class="head-1"> {{ section.settings.season-headline }} </div>
+    	<div class="sub-head"> {{ section.settings.season-text }} </div>
+	</div>
+    <div class="grid-item large--one-third medium--one-third small--one-third text-left">
+      <div class="season-btn">
+  		<a href="{{ section.settings.link }}" class="s-button">{{ section.settings.linktext }}</a>
+      </div>
+	</div>
+  </div>
+</div>
+<div class="season-bott"></div>
+
+{% schema %}
+  {
+    "name": "Seasonal header",
+    "settings": [
+	{
+      "type": "image_picker",
+      "id": "season-image",
+      "label": "Image"
+    },
+ 	{
+        "id": "season-headline",
+        "type": "text",
+        "label": "Heading",
+        "default": "Title"
+      },
+      {
+        "id": "season-text",
+        "type": "text",
+        "label": "Add custom text below",
+        "default": "Add your text here"
+      },
+{
+      "id": "link",
+      "type": "url",
+      "label": "Button link"
+    },
+    {
+      "id": "linktext",
+      "type": "text",
+      "label": "Button text",
+      "default": "SHOP NOW"
+    }
+]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

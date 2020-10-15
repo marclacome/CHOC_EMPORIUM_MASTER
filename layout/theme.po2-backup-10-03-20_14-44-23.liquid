@@ -1,0 +1,525 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-touch no-js"> <!--<![endif]-->
+
+<head>
+
+  <meta name="google-site-verification" content="albjxgsU1KTvAUiDpPL9VfqG4aGUU44S-8ozog6Y35o" />
+	<!--pinterest verification code-->
+  <meta name="p:domain_verify" content="920ab7d37ca761bb6e5f48f57e53f2db"/>
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  {% if settings.favicon_enable %}
+  <link rel="shortcut icon" href="{{ 'favicon.png' | asset_url }}" type="image/png" />
+  {% endif %}
+
+  <!-- Title and Description ================================================== -->
+  <title>
+  {{ page_title }}{% if current_tags %}{% assign current_tags_joined = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags_joined }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+
+
+  {% if page_description %}
+    <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+
+  <!-- Product meta ================================================== -->
+  {% include 'open-graph-tags' %}
+  {% include 'twitter-card' %}
+
+  <!-- Helpers ================================================== -->
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  {% if settings.ajax_cart_method != 'page' %}
+  <!-- Ajaxify Cart Plugin ================================================== -->
+  {{ 'ajaxify.scss.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+
+  <!-- CSS ================================================== -->
+  {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
+  {% include 'google-fonts' %}
+
+  {{ 'popup.css' | asset_url | stylesheet_tag }}
+  {{ 'popup.js' | asset_url | script_tag }}
+
+  <!-- Header hook for plugins ================================================== -->
+  {{ content_for_header }}
+
+  {% include 'oldIE-js' %}
+
+  {% comment %}
+    If you store has customers disabled, you can remove the following JS file
+  {% endcomment %}
+  <script src="//js.maxmind.com/js/apis/geoip2/v2.1/geoip2.js" type="text/javascript"></script>
+  {% if template contains 'customers' %}
+    {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+    {{ 'customer_area.js'  | shopify_asset_url | script_tag }}
+  {% endif %}
+
+  {{ '//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js' | script_tag }}
+  {{ 'modernizr.min.js' | asset_url | script_tag }}
+
+  <!--googlefont added by co-->
+ <link href="https://fonts.googleapis.com/css?family=Arimo:400,400i,700,700i" rel="stylesheet">
+  <!--end googlefont added by co-->
+  {{ 'bdi_once_only_popup.css' | asset_url | stylesheet_tag }}
+  {{ 'bdi_once_only_popup.js' | asset_url | script_tag }}
+  {{ 'whereat.js' | asset_url | script_tag }}
+</head>
+
+<body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}" >
+  <!-- V7 move hidden from cart to here so we can send duplicate PAM final -->
+  <input type='hidden' id='gift_wrap_ids' value='
+  {% for prod in collections['pick-and-mix-gift-wrap'].products %}
+    {% for var in prod.variants %}
+      {{var.id}},
+    {% endfor %}
+  {% endfor %}
+  '>
+
+  <input type='hidden' id='tag_ids' value='
+  {% for prod in collections['gift-tag'].products %}
+    {% for var in prod.variants %}
+      {{var.id}},
+    {% endfor %}
+  {% endfor %}
+  '>
+
+  <input type='hidden' id='gift_tag_free_title' value='{% for prod in collections['gift-tag'].products %}{% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}{{prod.title}}{% endif %}{% endfor %}'>
+
+<!-- END V7 -->
+
+
+
+
+  
+  <noscript><div class="noscript">Please enable javascript in your browser to use all features of this website.</div></noscript>
+<!-- title etc of free gift wrap option - so we can always access it from anywhere -->
+  {% for prod in collections['gift-wrap'].products %}
+    {% if prod.first_available_variant.barcode == 'FREE-GIFTWRAP' %}
+    <input type='hidden' id='free_giftwrap_details' value='{{prod.title}}'>
+    <input type='hidden' id='free_giftwrap_image' value='{{prod.featured_image | product_img_url: "small"}}'>
+    {% endif %}
+  {% endfor %}
+  {% for prod in collections['pick-and-mix-gift-wrap'].products %}
+    {% if prod.first_available_variant.barcode == 'FREE-GIFTWRAP' %}
+    <input type='hidden' id='pam_free_giftwrap_details' value='{{prod.title}}'>
+    <input type='hidden' id='pam_free_giftwrap_image' value='{{prod.featured_image | product_img_url: "small"}}'>
+    {% endif %}
+  {% endfor %}
+<!-- -->
+
+
+  <div id='pam-techie' style='display:none'>
+    <div id='pam_str_div' style='width:100%;display:block'>
+       {% if cart.attributes.PAM_STR != blank%}
+      	{{ cart.attributes.PAM_STR }}
+      {% endif %}
+    </div>
+    <input type='button' value='techie' onclick='PAM.show_techie()'>
+    <input type='button' value='clear bags' id='PAM-clear-bags-button' onclick="PAM.clearBags()">
+  </div>
+<div id='GW-direct-to-cart-confirmation'class='pam-direct-to-cart-confirmation'>Item added to your basket.</div>
+  <header class="site-header" role="banner">
+    
+    <div class="special-header-section">
+      {% section 'seasonal-header' %}
+      </div>
+    
+    <div class="wrapper">
+
+      <div class="grid--full">
+        <div class="grid-item large--one-third">
+          <div class="header-contact medium-down--hide"> <a href="http://thechocolateco.com/pages/contact-us"><img src="{{ 'topicon-contact.png' | asset_url }}" alt="The Chocolate Emporium - Lindt Lindor UK and USA Pick & Mix, Ghirardelli, Godiva & Monty Bojangles chocolates to buy online - Contact us" itemprop="contact">Contact us</a> </div>
+          {% include 'search-bar' %}
+        </div>
+        <div class="grid-item large--one-third text-center">
+
+
+          {% if template == 'index' %}
+            <h1 class="header-logo" itemscope itemtype="http://schema.org/Organization">
+          {% else %}
+            <div class="h1 header-logo" itemscope itemtype="http://schema.org/Organization">
+          {% endif %}
+            {% if settings.logo_use_image %}
+              <a href="/" itemprop="url">
+                <img src="{{ 'logo.png' | asset_url }}" alt="{{ shop.name }}" itemprop="logo" title="Buy chocolates online - Lindt Lindor UK and USA, Pick & Mix, Ghirardelli chocolates - The Chocolate Emporium">
+              </a>
+            {% else %}
+              <a href="/" itemprop="url">{{ shop.name }}</a>
+            {% endif %}
+          {% if template == 'index' %}
+            </h1>
+          {% else %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="grid-item large--one-third large--text-right">
+          {% if settings.header_message != blank or shop.customer_accounts_enabled %}
+            <div class="site-header--text-links header-account{% if settings.header_message == blank %} medium-down--hide{% endif %}">
+              {% if settings.header_message != blank %}
+                {{ settings.header_message }}
+              {% endif %}
+
+              {% if shop.customer_accounts_enabled %}
+                <span class="site-header--meta-links medium-down--hide">
+                  <img src="{{ 'topicon-account.png' | asset_url }}" alt="The Chocolate Emporium - Lindt Lindor UK and USA Pick & Mix, Ghirardelli, Godiva, Monty Bojangles chocolates to buy online - Account" itemprop="account">
+                  {% if customer %}
+                    {% capture first_name %}<a href="/account">{{ customer.first_name }}</a>{% endcapture %}
+                    <!--REPLACE DOT WITH LINE{{ 'layout.customer.logged_in_as_html' | t: first_name: first_name }} &middot; {{ 'layout.customer.log_out' | t | customer_logout_link }}-->
+                  {{ 'layout.customer.logged_in_as_html' | t: first_name: first_name }} &verbar; {{ 'layout.customer.log_out' | t | customer_logout_link }}
+                  {% else %}
+                    {{ 'layout.customer.sign_in' | t | customer_login_link }}
+                    <!--REPLACED OR WITH LINE<span class="site-header--spacer">{{ 'layout.customer.or' | t }}</span>-->
+                  <span class="site-header--spacer">&verbar;</span>
+                    {{ 'layout.customer.create_account' | t | customer_register_link }}
+                  {% endif %}
+                </span>
+              {% endif %}
+            </div>
+
+            <!--<br class="medium-down--hide">-->
+          {% endif %}
+
+          <!--{% include 'search-bar' %}-->
+
+          <a href="/cart" class="header-cart-btn cart-toggle">
+            <img src="{{ 'topicon-basket.png' | asset_url }}" alt="The Chocolate Emporium - Lindt Lindor UK and USA Pick & Mix, Ghirardelli, chocolates to buy online - Account" itemprop="account">
+            <!--<span class="icon icon-cart"></span>-->
+            {{ 'layout.cart.cart' | t }} <span class="cart-count cart-badge--desktop {% if cart.item_count == 0 %}hidden-count{% endif %}">{{ cart.item_count }}</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <nav class="nav-bar" role="navigation">
+    <div class="wrapper">
+      {% include 'search-bar' %}
+      {% include 'site-nav' %}
+    </div>
+  </nav>
+
+  <div id="mobileNavBar">
+    <div class="display-table-cell">
+      <a class="menu-toggle mobileNavBar-link"><span class="icon icon-hamburger"></span>{{ 'layout.navigation.mobile_menu' | t }}</a>
+    </div>
+    <!--new added contact to mob menu
+    contact
+    end new-->
+    <div class="display-table-cell">
+      <a href="/cart" class="cart-toggle mobileNavBar-link">
+        <span class="icon icon-cart"></span>
+        {{ 'layout.cart.cart' | t }} <span class="cart-count {% if cart.item_count == 0 %}hidden-count{% endif %}">{{ cart.item_count }} </span>
+      </a>
+    </div>
+  </div>
+
+  <main class="wrapper main-content" role="main">
+
+    {{ content_for_layout }}
+
+
+  </main>
+
+  {% include 'gift-wrap-popup' %}
+
+
+
+  {% capture theme_settings_link %}<a href="/admin/themes/{{ theme.id }}/settings">{{ 'layout.footer.theme_settings' | t }}</a>{% endcapture %}
+  <div class="pre-footer"></div>
+  <footer class="site-footer small--text-center" role="contentinfo">
+
+    <div class="wrapper">
+
+      <div class="grid">
+
+        {% if settings.footer_quicklinks_enable %}
+          <!--<div class="grid-item medium--one-half large--three-twelfths footer-centered">-->
+        <div class="grid-item large--one-third footer-centered">
+            <h3>{{ 'layout.footer.quick_links' | t }}</h3>
+            <ul class="quick-links">
+              {% for link in linklists[settings.footer_quicklinks_linklist].links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {% else %}
+                {% capture theme_settings_footer_linklist_path %}<strong>Footer</strong> > <strong>Quick links link list</strong>{% endcapture %}
+                {{ 'layout.footer.instructions_for_linklist_html' | t: theme_settings_link: theme_settings_link, theme_settings_footer_linklist_path: theme_settings_footer_linklist_path }}
+              {% endfor %}
+            </ul>
+            <!--add search to footer-->
+             {% include 'search-bar' %}
+          </div>
+        {% endif %}
+
+        <!--moved search to centre-->
+        {% if settings.footer_newsletter_enable %}
+        <div class="grid-item large--one-third footer-centered">
+        <!--<div class="grid-item large--five-twelfths footer-centered">-->
+          <h3>{{ 'layout.footer.newsletter_title' | t }}</h3>
+          {% include 'newsletter-form' %}
+        </div>
+        {% endif %}
+        <!--end-->
+
+        {% if settings.footer_content_enable or settings.footer_social_enable %}
+     <!--<div class="grid-item medium--one-half large--five-twelfths footer-right">-->
+        <div class="grid-item large--one-third footer-centered">
+        <!--<div class="grid-item medium--one-half large--four-twelfths footer-centered">-->
+          <h3>{{ 'layout.footer.get_in_touch' | t }}</h3>
+          <ul>
+          <li>The Chocolate Emporium</li>
+          <li class="footer-mail"><a href="mailto:&#105;&#110;&#102;&#111;&#064;&#116;&#104;&#101;&#045;&#099;&#104;&#111;&#099;&#111;&#108;&#097;&#116;&#101;&#045;&#101;&#109;&#112;&#111;&#114;&#105;&#117;&#109;&#046;&#099;&#111;&#109;?subject=Enquiry from The Chocolate Emporium Website"><!--<img src="{{ 'footicon-mail.png' | asset_url }}" alt="The Chocolate Emporium, online chocolate shop, UK and USA Lindt Lindor chocolates - Call us" itemprop="call">-->&#105;&#110;&#102;&#111;&#064;&#116;&#104;&#101;&#045;&#099;&#104;&#111;&#099;&#111;&#108;&#097;&#116;&#101;&#045;&#101;&#109;&#112;&#111;&#114;&#105;&#117;&#109;&#046;&#099;&#111;&#109;</a></li>
+          <li class="footer-phone"><!--<img src="{{ 'footicon-phone.png' | asset_url }}" alt="The Chocolate Emporium - Call us" itemprop="call">-->01273 284 220</li>
+          </ul>
+          <!--{% if settings.footer_content_enable %}
+            <p>
+              {% if settings.footer_content_text != blank %}
+                {{ settings.footer_content_text }}
+              {% else %}
+                {{ 'layout.footer.instructions_for_text_content_html' | t: theme_settings_link: theme_settings_link }}
+              {% endif %}
+            </p>
+          {% endif %}-->
+
+
+          {% if settings.footer_social_enable %}
+            <ul class="inline-list social-icons">
+              {% if settings.social_twitter_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_twitter_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Twitter' | escape }}">
+                    <span class="icon icon-twitter" aria-hidden="true"></span>
+                    <span class="fallback-text">Twitter</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_facebook_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_facebook_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Facebook' | escape }}">
+                    <span class="icon icon-facebook" aria-hidden="true"></span>
+                    <span class="fallback-text">Facebook</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_pinterest_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_pinterest_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Pinterest' | escape }}">
+                    <span class="icon icon-pinterest" aria-hidden="true"></span>
+                    <span class="fallback-text">Pinterest</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_google_plus_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_google_plus_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Google' | escape }}" rel="publisher">
+                    <span class="icon icon-google_plus" aria-hidden="true"></span>
+                    <span class="fallback-text">Google</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_instagram_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_instagram_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Instagram' | escape }}">
+                    <span class="icon icon-instagram" aria-hidden="true"></span>
+                    <span class="fallback-text">Instagram</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_tumblr_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_tumblr_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Tumblr' | escape }}">
+                    <span class="icon icon-tumblr" aria-hidden="true"></span>
+                    <span class="fallback-text">Tumblr</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_youtube_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_youtube_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'YouTube' | escape }}">
+                    <span class="icon icon-youtube" aria-hidden="true"></span>
+                    <span class="fallback-text">YouTube</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_vimeo_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_vimeo_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Vimeo' | escape }}">
+                    <span class="icon icon-vimeo" aria-hidden="true"></span>
+                    <span class="fallback-text">Vimeo</span>
+                  </a>
+                </li>
+              {% endif %}
+              {% if settings.social_fancy_link != blank %}
+                <li>
+                  <a class="icon-fallback-text" href="{{ settings.social_fancy_link }}" title="{{ 'layout.footer.store_on_social_network' | t: store_name: shop.name, social_network: 'Fancy' | escape }}">
+                    <span class="icon icon-fancy" aria-hidden="true"></span>
+                    <span class="fallback-text">Fancy</span>
+                  </a>
+                </li>
+              {% endif %}
+              <li>
+                <a class="rss-icon" href="javascript:alert('To subscribe to our RSS feed, add the following link to your RSS reader - http://the-chocolate-company.myshopify.com/blogs/news.atom')"></a>
+              </li>
+            </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+       <!-- {% if settings.footer_newsletter_enable %}
+        <div class="grid-item large--one-third">
+          <h3>{{ 'layout.footer.newsletter_title' | t }}</h3>
+          {% include 'newsletter-form' %}
+        </div>
+        {% endif %}-->
+      </div>
+
+      <hr class="hr--small">
+
+      <div class="grid">
+        <div class="grid-item{% unless shop.enabled_payment_types == empty %} large--two-fifths{% endunless %}">
+          {% if settings.footer_legallinks_enable %}
+            <ul class="legal-links inline-list">
+              {% for link in linklists[settings.footer_legallinks_linklist].links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <ul class="legal-links inline-list">
+            <li>
+              &copy; {{ 'now' | date: "%Y" }} {{ shop.name | link_to: '/' }}
+            </li>
+            <!--<li>
+              {{ powered_by_link }}
+            </li>-->
+            <li>
+              <a href="http://www.bdiworks.com" title="Shopify design and development by BdiWorks Brighton Sussex UK">Shopify Design by BdiWorks</a>
+            </li>
+          </ul>
+        </div>
+
+        {% unless shop.enabled_payment_types == empty %}
+          <div class="grid-item large--three-fifths large--text-right">
+            {% assign payment_icons_available = 'amazon_payments,american_express,bitcoin,cirrus,dankort,diners_club,discover,dogecoin,dwolla,forbrugsforeningen,interac,jcb,litecoin,maestro,master,paypal,visa' | split: ',' %}
+            <ul class="inline-list payment-icons">
+             <!--new line--> {% assign enabled_payment_types = 'visa,master,american_express,paypal' | remove: ' ' | split: ',' %}
+				{% for type in enabled_payment_types %}
+                {% if payment_icons_available contains type %}
+                  <li>
+                    <span class="icon-fallback-text">
+                      <span class="icon icon-{{ type }}" aria-hidden="true"></span>
+                      <span class="fallback-text">{{ type | replace: '_',' ' }}</span>
+                    </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endunless %}
+
+      </div>
+	<!--<div class="grid">
+      <div class="grid-item">
+        <div id ="pam-cookie-consent" class="pam-cookie-consent">
+          <p>This site uses cookies to provide additional site functionality and improve your experience.
+            By using our website, you agree to our use of cookies.<span class="cookie-agree">OK</span></p>
+        </div>
+      </div>
+    </div>-->
+    </div>
+
+
+  </footer>
+
+
+  {% comment %}{{ 'fastclick.min.js' | asset_url | script_tag }}{% endcomment %}
+
+  {{ 'shop.js' | asset_url | script_tag }}
+
+  {% if template == 'index' and hero_enabled %}
+    {{ 'jquery.flexslider.min.js' | asset_url | script_tag }}
+  {% endif %}
+
+  <script>
+  var moneyFormat = '{{ shop.money_format }}';
+  </script>
+
+{% if settings.ajax_cart_method != 'page' %}
+  {{ 'handlebars.min.js' | asset_url | script_tag }}
+  {% include 'ajax-cart-template' %}
+  {{ 'ajaxify.js' | asset_url | script_tag }}
+  <script>
+  jQuery(function($) {
+    ajaxifyShopify.init({
+      method: '{{ settings.ajax_cart_method }}',
+      wrapperClass: 'wrapper',
+      formSelector: '#addToCartForm',
+      addToCartSelector: '#addToCart',
+      cartCountSelector: '.cart-count',
+      toggleCartButton: '.cart-toggle',
+      useCartTemplate: true,
+      btnClass: 'btn',
+      moneyFormat: {{ shop.money_format | json }},
+      disableAjaxCart: false,
+      enableQtySelectors: true
+    });
+  });
+  </script>
+{% else %}
+{{ 'cart_badge.js' | asset_url | script_tag }}
+{% assign gw_js = false %}
+  {% if template  contains  'product'  %}
+    {% assign gw_js = true %}
+  {% endif %}
+  {% if template  contains  'list-collections' %}
+    {% assign gw_js = true %}
+  {% endif %}
+  {% if template  contains  'chocolate-bars' %}
+    {% assign gw_js = true %}
+  {% endif %}
+  {% if template  ==  'collection' %}
+    {% assign gw_js = true %}
+  {% endif %}
+  {{ 'input.js' | asset_url | script_tag }}
+  {{ 'confirmation_popups.js' | asset_url | script_tag }}
+  {% if gw_js %}
+    {{ 'gw_lib.js' | asset_url | script_tag }}
+    <script>
+     jQuery(function($){
+       CartBadge.init();
+       GW.init('{{template}}');
+  	 bdi_once_only_popup.init('{{template}}');
+     //V6 - include whereweat
+     {% if {{settings.usa_override_enable}} %}
+        whereweat.init('{{collection.handle}}', {{settings.force_usa_override}});
+      {% else %}
+         whereweat.init('{{collection.handle}}', -1);
+     {% endif %}
+     });
+    </script>
+  {% else %}
+    {{ 'pam_simple_lib.js' | asset_url | script_tag }}
+  <script>
+   jQuery(function($){
+     CartBadge.init();
+     PAM.init('{{template}}', {{settings.pam_min_bag_size}});
+	 bdi_once_only_popup.init('{{template}}');
+   //V6 - include whereweat
+   {% if {{settings.usa_override_enable}} %}
+      whereweat.init('{{collection.handle}}', {{settings.force_usa_override}});
+   {% else %}
+      whereweat.init('{{collection.handle}}', -1);
+   {% endif %}
+   });
+  </script>
+  {% endif %}
+{% endif %}
+ {% include 'bdi-once-only-popup' %}
+<!-- BEEKETINGSCRIPT CODE START -->{% include 'bk-tracking' %}<!-- BEEKETINGSCRIPT CODE END --></body>
+</html>

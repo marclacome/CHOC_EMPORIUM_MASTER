@@ -1,0 +1,35 @@
+<div class='with-gift-message'>
+  <div class='popup-checkbox-wrap' onclick="radio_click('tag_none')">
+    <div class='popup-checkbox-button'>
+      <input class='popup_radio' id='tag_none' name='message_checkboxes' type='radio' checked></div>
+    <div class='popup-checkbox-title' onclick="radio_click('tag_none')">{{settings.decline_gift_message_text}}</div>
+  </div>
+  {% for prod in collections['gift-tag'].products %}
+        <div class='popup-checkbox-wrap'>
+          {% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}
+            <div class='popup-checkbox-button'><input class='popup_radio' id='gift_tag_free' type='radio' name='message_checkboxes'>
+          {% else %}
+            <div class='popup-checkbox-button'><input class='popup_radio' id='{{prod.first_available_variant.id}}' type='radio' name='message_checkboxes'>
+          {% endif %}
+          </div>
+          {% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}
+            <div id='popup_description_gift_tag_free' class='popup-checkbox-title' onclick='radio_click("gift_tag_free")'>{{prod.title}}</div>
+          {%else%}
+            <div id='popup_description_{{prod.first_available_variant.id}}' class='popup-checkbox-title' onclick='radio_click("{{prod.first_available_variant.id}}")'>{{prod.title}} {{prod.price | money}}</div>
+          {%endif%}
+        </div>
+  {% endfor %}
+  {% if template contains 'pam-template' %}
+    <h2>Enter your message (max {{settings.gift_message_length}} characters)</h2>
+      <textarea id='pam_gift_message_textarea' maxlength='{{settings.gift_message_length}}'></textarea>
+    </div>
+    <div class='popup-button' onclick='PAM.handle_giftwrap_click()'>Continue</div>
+  {%else%}
+  <h2>Enter your message (max {{settings.gift_message_length}} characters)</h2>
+    <textarea id='gift_message_textarea' maxlength='{{settings.gift_message_length}}'></textarea>
+  </div>
+  <div class='popup-button' onclick='GW.handle_giftwrap_click()'>Continue</div>
+    {%endif%}
+
+
+</div>

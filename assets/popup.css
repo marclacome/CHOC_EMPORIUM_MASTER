@@ -1,0 +1,283 @@
+.popup-container{
+ margin:0;
+ top: 0;
+ left: 0;
+position: fixed;
+  /*position: absolute;*/
+ width: 100%;
+ height: 100%;
+ /*background:#000;*/
+ display: none;
+ /*opacity:.8;*/
+  background: rgba(0, 0, 0, 0.7);
+ z-index:9000;
+ /*widows:50%;*/
+
+ }
+
+ .popup-box{
+ width: 40%;
+   padding:10px;
+   background-color: #f6f2e7;
+ /*margin:
+ 50px auto;
+ text-align: left;*/
+ border: 3px solid #804291;
+ border-radius: 5px;
+ top: 10%;
+ left: 30%;
+ /*position: fixed;*/
+ position: absolute;
+ /*position: relative;
+ vertical-align: middle;*/
+ z-index:10000;
+ opacity:1;
+display : none;
+
+ }
+
+
+@media only screen and (max-width: 600px){
+ .popup-box{
+ width:98%;
+ top: 10%;
+ left: 1%;
+   padding:0;
+position: absolute;
+  }
+  .popupBoxDetails{
+    margin:0;
+    padding:0;
+	}
+}
+
+/*For ipad portrait*/
+
+@media only screen and (max-width: 768px){
+ .popup-box{
+ width:98%;
+ top: 10%;
+ left: 1%;
+   padding:0;
+position: absolute;
+  }
+  .popupBoxDetails{
+    margin:0;
+    padding:0;
+	}
+}
+
+.close-btn{
+Font-size:11px;
+  font-weight:700;
+  text-align:right;
+  display: block;
+  /*text-decoration:underline;*/
+  color: #887295;
+  background-color: #ffffff;
+  border-radius:10px;
+  margin:0;
+  padding:3px 7px;
+  float: right;
+  cursor: pointer;
+}
+
+/*pix in popups giftwrap*/
+.giftwrap-img img{
+ max-width:70px;
+}
+
+#wrap_popup_offer_multiple{
+	background-color: #ffffff;
+font-weight:700;
+  font-size:14px;
+  font-style: italic;
+  border-left: 1px solid #cccccc;
+  border-right: 1px solid #cccccc;
+  border-bottom: 1px solid #cccccc;
+  margin: 0 0 10px  0;
+  display: inline-block;
+  padding: 10px 5px;
+}
+
+#wrap_popup_offer_multiple a{
+
+color: #C31E9C;
+  border-bottom: 1px solid #C31E9C;
+}
+
+
+
+.popupBoxDetails{
+
+font-size: 12px;
+  font-weight:700;
+  border-bottom: 1px solid #cccccc;
+  margin: 0 0 10px 0;
+  padding: 0 0 10px 0;
+}
+ .popupBoxContent{
+ /*background-color:  #ffffff;*/
+ padding:15px;
+ opacity:1;
+ text-align:center;
+
+   width:100%;
+ /*
+ -o-box-shadow:0 0 50px ##219ab3;
+ -moz-box-shadow:0 0 50px ##219ab3;
+ -webkit-box-shadow:0 0 50px ##219ab3;
+ -ms-box-shadow:0 0 50px ##219ab3;
+ transition:ease-in;
+ transition-delay:1s;
+ -webkit-transition:ease-in;
+ */
+ z-index:10000;
+}
+
+.popupBoxContent h2{
+  color:#593A8D;
+  font-size:14px;
+}
+
+.popupBoxContent h3{
+  color:#593A8D;
+  font-size:12px;
+}
+
+.popupBoxContent table{
+  margin: auto;
+  border-collapse: collapse;
+}
+
+.popupBoxContent tr{
+  cursor: pointer;
+  border:1px solid #C31E9C;
+}
+
+.popupBoxContent tr:hover{
+background-color:#C31E9C;
+}
+
+.popupBoxContent td{
+  border-collapse: collapse;
+  border:none;
+}
+
+/*.popupBoxContent textarea{
+  background-color: #ffffff;
+}*/
+
+.popup-box input[type="textarea"], .popupBoxContent input[type="textarea"]{
+	background-color: #ffffff !important;
+}
+.popup-box input[type="text"], .popupBoxContent input[type="text"]{
+	background-color: #ffffff !important;
+}
+
+#pam_gift_message_textarea, #gift_message_textarea{
+	background-color: #ffffff;
+}
+
+/*radio buttons*/
+
+.popup-checkbox-wrap{
+	text-align: left !important;
+  width:90%;
+  margin:0 0 10px 5px;
+  border-bottom: 1px solid #cccccc;
+}
+
+.popup-checkbox-button{
+  display:inline;
+  width:30px;
+
+}
+.popup-checkbox-title{
+display: inline;
+  font-size: 12px;
+  text-transform: uppercase !important;
+}
+
+.popup-button
+{
+ max-width:50%;
+  text-transform: uppercase;
+  font-weight:700;
+  margin: 5px auto;
+  border-radius: 3px;
+  background-color: #AC57C4 !important;
+  border: 2px solid #BF57E5;
+  color: #ffffff;
+  font-size: 16px;
+  letter-spacing: 1px;
+  padding: 6px 20px;
+  cursor: pointer;
+}
+.popup-button:hover{
+  background-color:#C31E9C !important;
+}
+
+@media only screen and (max-width: 600px){
+
+	.popup-button{
+  
+  	 max-width:100%;
+	}
+
+}
+
+
+.pam-cart td a{
+text-decoration: underline;
+}
+
+
+#direct-to-cart-gift-wrap-options{
+
+  text-align: center;
+
+}
+#direct-to-cart-gift-wrap-options table{
+
+  margin: auto;
+  border-collapse: collapse;
+
+}
+
+#direct-to-cart-gift-wrap-options tr{
+border:1px solid #C31E9C;
+}
+
+#direct-to-cart-gift-wrap-options tr:hover{
+background-color:#C31E9C;
+}
+#direct-to-cart-gift-wrap-options td{
+border-collapse: collapse;
+  border:none;
+}
+
+/*Small: 480px
+Medium: 768px
+Large: 769px
+
+/*tempt popup on cart page only*/
+.tempt{
+margin-top:10px;
+}
+
+/*tempt poup*/
+
+.checkout-popup-box .btn{
+
+font-size:14px;
+  margin-top:10px;
+
+}
+
+.tempt-title{
+    font-weight: 700;
+    font-size: 18px;
+  font-style: italic;
+    color: #804291;
+}
