@@ -1,0 +1,8 @@
+branch CHOC_EMPORIUM_MASTER is downloaded from Choc Emporium 15/10/2010
+added minor tweaks to pam_simple_lib.js - try to fix errors in orders
+
+
+branch choc_emporium_wip is my working version of choc_emporium
+was previously named choc_emporium
+is for research only.
+add all real changes to choc_emporium

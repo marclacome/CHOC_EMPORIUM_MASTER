@@ -51,12 +51,12 @@ var PAM = new function () {
         self.combine_packaging = false;
         self.developer_mode = developer_mode;
 
-/*
-        $(window).bind('beforeunload', function () {
-            if (self.is_busy)
-                return 'We are busy sending data to the server. If you leave the page now then the data may be incomplete. Do you really want to leave?';
-        });
-        */
+        /*
+                $(window).bind('beforeunload', function () {
+                    if (self.is_busy)
+                        return 'We are busy sending data to the server. If you leave the page now then the data may be incomplete. Do you really want to leave?';
+                });
+                */
 
         $('.pam-quantity-minus').each(function () {
             $(this).bind("click", function () {
@@ -86,15 +86,22 @@ var PAM = new function () {
     //for development
     this.clearBags = function () {
         PAM_set_bag_str(null);
-        PAM_ajax_update_cart_attrib(PAM_get_bag_str());
+        PAM_ajax_update_cart_attrib(PAM_get_bag_str(), true);
     }
 
     this.submitCart = function () {
         var str = PAM_create_pam_final(true);
 
+        var updateReadme = false;
+        if (str.length)
+            updateReadme = true;
+        if (!str.length && self.cart.attributes['PAM_README'])
+            updateReadme = true;
 
-        if (str.length) {
-            str += "#";
+
+        if (updateReadme) {
+            if (str.length)
+                str += "#";
             $('#note_string').val(str);
             var params = {
                 type: 'POST',
@@ -912,11 +919,13 @@ var PAM = new function () {
         else
             $('#attributes_version_cart').val('1.00 ' + pstr.length);
         var obj = PAM_get_bag_object();
-        if (obj == null && self.combine_packaging.length === 0) {
-            $('#attributes_PICK-AND-MIX-INFO').html('none');
-            return "";
-        }
         var str = "";
+        if (obj == null) {
+            str += "\r\nCOMBINE PACKAGING " + self.combine_packaging;
+            $('#attributes_PICK-AND-MIX-INFO').html('none');
+            return str;
+        }
+
         if (obj !== null) {
             if (close_selected)
                 PAM_close_open_bag();
@@ -973,7 +982,10 @@ var PAM = new function () {
     }
 
     this.beforeCheckout = function (combinePacking, showTempt) {
-        self.combine_packaging = combinePacking;
+        if (combinePacking.length)
+            self.combine_packaging = combinePacking;
+        else
+            self.combine_packaging = "NO";
 
 
 
@@ -1020,7 +1032,7 @@ var PAM = new function () {
         jQuery.ajax(params);
     };
 
-    var PAM_ajax_update_cart_attrib = function (attrib_str, callback) {
+    var PAM_ajax_update_cart_attrib = function (attrib_str, resetBusy) {
         self.is_busy = true;
         window.setTimeout(function () {
             var params = {
@@ -1040,7 +1052,14 @@ var PAM = new function () {
                     }
                     self.show_pick_and_mix_page();
                     PAM_do_bag_display();
-                    self.is_busy = false;
+                    if (resetBusy)
+                        self.is_busy = false;
+                    else {
+                        window.setTimeout(function () {
+                            self.is_busy = false;
+                        }, 3000);
+
+                    }
                 },
                 error: function (err) {
                     self.onAjaxError(err, 2);
@@ -1093,7 +1112,7 @@ var PAM = new function () {
                 }
                 else {
                     var nl = cart.attributes['PAM_STR'];
- 					if (jQuery.parseJSON(nl).logging)
+                    if (jQuery.parseJSON(nl).logging)
                         self.logging = jQuery.parseJSON(jQuery.parseJSON(nl).logging);
                     else
                         self.logging = [];
@@ -1133,11 +1152,11 @@ var PAM = new function () {
             data: "quantity=" + quantity + "&id=" + product_id,
             dataType: 'json',
             success: function (line_item) {
-                PAM_ajax_update_cart_attrib(self.PAM_STR);
+                PAM_ajax_update_cart_attrib(self.PAM_STR, true);
             },
             error: function (err) {
                 self.onAjaxError(err, 5);
-                PAM_ajax_update_cart_attrib(existing_str);
+                PAM_ajax_update_cart_attrib(existing_str, true);
             }
         };
         self.PAM_log(5);
@@ -1167,7 +1186,7 @@ var PAM = new function () {
             data: "quantity=" + new_quantity + "&id=" + product_id,
             dataType: 'json',
             success: function (cart) {
-                PAM_ajax_update_cart_attrib(self.PAM_STR);
+                PAM_ajax_update_cart_attrib(self.PAM_STR, false);
             },
             error: function (err) {
                 self.onAjaxError(err, 6);
@@ -1256,11 +1275,11 @@ var PAM = new function () {
             data: "quantity=" + selected_product_quantity + "&id=" + product_variant,
             dataType: 'json',
             success: function (line_item) {
-                PAM_ajax_update_cart_attrib(self.PAM_STR);
+                PAM_ajax_update_cart_attrib(self.PAM_STR, true);
             },
             error: function (err) {
                 self.onAjaxError(err, 1000);
-                PAM_ajax_update_cart_attrib(keepsafe_str);
+                PAM_ajax_update_cart_attrib(keepsafe_str, true);
             }
         };
         jQuery.ajax(params);
