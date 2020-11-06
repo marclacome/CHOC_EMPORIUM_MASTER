@@ -10,30 +10,41 @@
 '>
 
 {% assign varcount = 1 %}
-{% assign sz = collections['pick-and-mix-gift-wrap'].products | size %}
 {% assign total_variants = 0 %}
 {% for prod in collections['pick-and-mix-gift-wrap'].products %}
 	{% assign this_size = prod.variants | size %}
 	{% assign total_variants = total_variants | plus : this_size %}
 {% endfor %}
-<input type='hidden' id='pam_gift_wrap_options' value='[
+
+
+	
+
+
+
+<input type='hidden' id='pam_gift_wrap_collection_products' value='[
 	{% for prod in collections['pick-and-mix-gift-wrap'].products %}
+    {% assign meta = prod.metafields.giftwrap.enabled | replace:  "'", '"' %}
+    {"meta":{{meta}}, "products":[
+        {% assign thiscount = 1 %}
+        {% assign num_variants = prod.variants | size %}
 		{% for var in prod.variants %}
-			{% if var.barcode == 'FREE-GIFTWRAP' %}
+        {% if var.available %}
+			{% if prod.has_only_default_variant %}
 				{"title":"{{prod.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
 			{% else %}
 				{"title":"{{prod.title}} {{var.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
 			{% endif %}
-			{% if varcount < total_variants %}
+			{% if thiscount < num_variants %}
 				,
 				{% endif %}
+        {% endif %}
+				{% assign thiscount = thiscount | plus:1 %}
 				{% assign varcount = varcount | plus:1 %}
-			{% endfor %}
+			{% endfor %}]}{%if varcount < total_variants %},{%endif%}
 	{% endfor %}
 ]'>
 
-
-<input type='hidden' id='pam_gift_wrap_filter' value='{{collections['pick-and-mix-gift-wrap'].description}}'>
+<input type='hidden' id='pam_gift_wrap_collection_meta' value="{{collections['pick-and-mix-gift-wrap'].metafields.giftwrap.enabled}}">
 
 
 {% include 'breadcrumb' %}
@@ -80,7 +91,7 @@
 		  {% endif %}
 		{%endunless%}
 		{% endfor %}
-          {% endcomment %}
+          {% endcomment  %}
                     
           
 		<div class='pick-and-mix-brand-button{% if 'lindt' == selected_brand %} pick-and-mix-brand-selected{% endif %}' onclick=PAM.filter_brand_button('pick-and-mix-brand-lindt')><span class='pick-and-mix-button-brand-title'>

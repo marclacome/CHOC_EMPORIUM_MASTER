@@ -92,10 +92,49 @@
   {% endfor %}
   '>
 
+  <input type="text" id="___gw_prods" value="{% for gwo in collections['gift-wrap'].products %}|{{gwo.title|remove:","}},{{gwo.featured_image| product_img_url: "small" }},{% for v in gwo.variants %}{%if v.available%}{{v.id}},{{v.title|remove:","}},{{v.price|money}},{%endif%}{%endfor%}{%endfor%}" />
+
+
+{% assign varcount = 1 %}
+{% assign total_variants = 0 %}
+{% for prod in collections['gift-wrap'].products %}
+	{% assign this_size = prod.variants | size %}
+	{% assign total_variants = total_variants | plus : this_size %}
+{% endfor %}
+
+
+<input type='text' id='gift_wrap_collection_products' value='[
+	{% for prod in collections['gift-wrap'].products %}
+    {% assign meta = prod.metafields.giftwrap.enabled | replace:  "'", '"' %}
+    {"meta":{{meta}}, "products":[
+        {% assign thiscount = 1 %}
+        {% assign num_variants = prod.variants | size %}
+		{% for var in prod.variants %}
+        {% if var.available %}
+                {% if prod.has_only_default_variant %}
+                    {"title":"{{prod.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
+                {% else %}
+                    {"title":"{{prod.title}} {{var.title}}", "id":"{{var.id}}", "barcode":"{{var.barcode}}", "price":"{{var.price|money}}","image":"{{prod.featured_image | product_img_url: 'small'}}"}
+                {% endif %}
+                {% if thiscount < num_variants %}
+                    ,
+                {% endif %}
+			{% endif %}
+				{% assign thiscount = thiscount | plus:1 %}
+				{% assign varcount = varcount | plus:1 %}
+			{% endfor %}]}{%if varcount < total_variants %},{%endif%}
+	{% endfor %}
+]'>
+
+{% assign product_total = collections['gift-wrap'].all_products_count %}
+<h1>total{{product_total}}</h1>
+{% assign product_count = 1 %}
+<input type="text" id="gw_prods_meta" value='[{% for gwo in collections['gift-wrap'].products%}{{gwo.metafields.giftwrap.enabled | replace:  "'", '"'}}{%if product_count < product_total%},{%endif%}{%assign product_count = product_count | plus: 1%}{%endfor%}]'>
+<input type='hidden' id='gift_wrap_collection_meta' value="{{collections['gift-wrap'].metafields.giftwrap.enabled}}">
+
   <input type='hidden' id='gift_tag_free_title' value='{% for prod in collections['gift-tag'].products %}{% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}{{prod.title}}{% endif %}{% endfor %}'>
 
 <!-- END V7 -->
-
 
 
 

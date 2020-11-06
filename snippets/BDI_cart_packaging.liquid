@@ -1,24 +1,33 @@
 {% if settings.developer_mode %}
 <div class="developer-label">[BDI cart_packaging snippet]</div>
 {% endif %}
+
+
 {% assign packaging_count = 0 %}
 {% assign packaging_string = "" %}
 {% assign packaging_metadata = "\r\n" %}
     {% for item in cart.items %}
-        {% if item.product.description contains "[PACK]" %}
-            {% assign add_packaging = true %}
-            {% for p in item.properties %}
-                {% if p.first == 'GIFTWRAP' or p.first == 'GIFT MESSAGE' %}
-                    {% assign add_packaging = false %}
+    {% assign add_packaging = false %}
+        {% assign ar=item.product.metafields.giftwrap.packing | split:","%}
+        {% for item in ar %}
+            {% if item contains "combine_packing" %}
+                {% if item contains "true" %}
+                    {% assign add_packaging = true %}
                 {% endif %}
-            {% endfor %}
-            {% if add_packaging == true %}
-                {% assign packaging_count = packaging_count | plus : item.quantity %}
-                {% assign packaging_string = packaging_string | append:"<li>" | append: item.quantity | append: " " | append: item.title | append:"</li>" %}
-                {% assign title = item.title | remove:","|append:", " %}
-				{% assign title = title | append: "\r\n" %}
-                {% assign packaging_metadata = packaging_metadata   | append: item.quantity|  append: " "| append: title %}
             {% endif %}
+        {% endfor %}
+            
+        {% for p in item.properties %}
+            {% if p.first == 'GIFTWRAP' or p.first == 'GIFT MESSAGE' %}
+                {% assign add_packaging = false %}
+            {% endif %}
+        {% endfor %}
+        {% if add_packaging == true %}
+            {% assign packaging_count = packaging_count | plus : item.quantity %}
+            {% assign packaging_string = packaging_string | append:"<li>" | append: item.quantity | append: " " | append: item.title | append:"</li>" %}
+            {% assign title = item.title | remove:","|append:", " %}
+            {% assign title = title | append: "\r\n" %}
+            {% assign packaging_metadata = packaging_metadata   | append: item.quantity|  append: " "| append: title %}
         {% endif %}
     {% endfor %}
 

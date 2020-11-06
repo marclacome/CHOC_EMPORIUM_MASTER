@@ -6,3 +6,8 @@ branch choc_emporium_wip is my working version of choc_emporium
 was previously named choc_emporium
 is for research only.
 add all real changes to choc_emporium
+
+15/10/2010
+update pam_str even if length is 0 (could have already been set so need to reset to '')
+ditto for packing 
+add 3 sec delay after remove from pam bag

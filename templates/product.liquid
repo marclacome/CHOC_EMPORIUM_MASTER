@@ -161,21 +161,13 @@
 		-->
         {% endif %}
         {% if product.variants.size > 1 %}
-          {% if product.tags contains "NO GIFT WRAP" %}
-            <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", 1,false, {{product.variants | size}}, "{{product.title}}")'>
-          {% else %}
-            <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", 1, true, {{product.variants | size}}, "{{product.title}}")'>
-          {% endif %}
+            <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", {{product.variants | size}}, "{{product.title}}")'>
               <span class="icon icon-cart"></span>
               <span id="addToCartText">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
         {% else %}
           {% if product.available %}
-            {% if product.tags contains "NO GIFT WRAP" %}
-              <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", 1,false, {{product.variants | size}}, "{{product.title}}")'>
-            {% else %}
-              <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", 1, true, {{product.variants | size}}, "{{product.title}}")'>
-            {% endif %}
+              <button name="add" id="_addToCart" class="btn" onclick='GW.product_add_to_basket_click("{{product.id}}", {{product.variants | size}}, "{{product.title}}")'>
                 <span class="icon icon-cart"></span>
                 <span id="addToCartText">{{ 'products.product.add_to_cart' | t }}</span>
               </button>
@@ -202,6 +194,9 @@
       <hr>
 
     </div>
+<input type="hidden" id="product_meta" value="{{product.metafields.giftwrap.packing}}" />
+
+
 
     <div class="product-description rte" itemprop="description">
     {% assign desc = product.description | split: "[" %}

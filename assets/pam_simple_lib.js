@@ -49,15 +49,14 @@ var PAM = new function () {
         self.cart = null;
         self.liquid_template = liquid_template;
         self.combine_packaging = false;
-        self.developer_mode = developer_mode;
+        self.developer_mode = true;//developer_mode;
 
         /*
                 $(window).bind('beforeunload', function () {
                     if (self.is_busy)
                         return 'We are busy sending data to the server. If you leave the page now then the data may be incomplete. Do you really want to leave?';
                 });
-                */
-
+        */
         $('.pam-quantity-minus').each(function () {
             $(this).bind("click", function () {
                 var this_id = this.id.replace('pam-quantity-minus-', '');
@@ -91,7 +90,6 @@ var PAM = new function () {
 
     this.submitCart = function () {
         var str = PAM_create_pam_final(true);
-
         var updateReadme = false;
         if (str.length)
             updateReadme = true;
@@ -296,49 +294,72 @@ var PAM = new function () {
             }
         }
 
-        var options_obj_str = $('#pam_gift_wrap_options').val();
-        var options_obj = JSON.parse(options_obj_str);
-
-        var options_filter_str = $('#pam_gift_wrap_filter').val();
-        options_filter_str = options_filter_str.replace('[', '');
-        options_filter_str = options_filter_str.replace(']', '');
-        options_filter_str = options_filter_str.replace(/-/g, '=');
-
-        var options_filter_raw = options_filter_str.split('=');
+        //all products in pam_gift_wrap collection
+        var giftwrap_products_str = $('#pam_gift_wrap_collection_products').val();
+        var giftwrapProductsObj = JSON.parse(giftwrap_products_str);
         var i = 1;
-        var options_filter = new Array();
         var found = false;
-        var found_ar;
+        var found_ar = [];
 
-        for (i = 1; i < options_filter_raw.length; i += 2) {
-            var limit = parseInt(options_filter_raw[i], 10);
+
+        //pam giftwrap collection enabled, pamSizes[{size, giftwrapOptions:[]}]
+        var options_filter_json = JSON.parse($('#pam_gift_wrap_collection_meta').val().replace(/'/g, '"'));
+        if (!options_filter_json.collection_enabled) {
+            self.ajax_complete_bag('tag_none', "");
+            return;
+        }
+
+
+        for (i = 0; i < options_filter_json.pamSizes.length; i++) {
+            var limit = parseInt(options_filter_json.pamSizes[i].size, 10);
             if (!found) {
                 if (item_count <= limit) {
-                    found_ar = options_filter_raw[i + 1].split(',');
+                    found_ar = options_filter_json.pamSizes[i].giftwrapOptions;
                     found = true;
                 }
             }
         }
 
-        var free_str = "";
-        $(options_obj).each(function () {
-            if (this.barcode == 'FREE-GIFTWRAP')
-                free_str = this.title;
-        });
+        if (options_filter_json.default)
+            found_ar.unshift(options_filter_json.default);
 
-        if (!found) {
-            self.show_offer_gift_message(-1, '"' + free_str + '"');
-            return;
-        }
 
-        var str = "<table>";
-        str += "<tr onclick='PAM.show_offer_gift_message(-1, " + '"' + free_str + '"' + ")'><td>" + free_str + "</td><td class='giftwrap-img'><img src='" + $('#free_giftwrap_image').val() + "'></td><td>Free</td></tr>";
+
+
+        var displayAr = [];
+
         $(found_ar).each(function () {
             var outer = this;
-            $(options_obj).each(function () {
-                if (outer == this.barcode)
-                    str += '<tr onclick="PAM.show_offer_gift_message(' + this.id + ",'" + this.title + "'" + ')"><td>' + this.title + "</td><td class='giftwrap-img'><img src='" + this.image + "'></td><td>" + this.price + "</td></tr>";
+            $(giftwrapProductsObj).each(function () {
+                var products = this;
+                if ((!this.meta.hasOwnProperty("pam_enabled")) || (this.meta.pam_enabled)) {
+                    $(this.products).each(function () {
+                        if (outer == this.id) {
+                            var show = true;
+                            $(products.meta.variants).each(function () {
+                                if (this.id == outer) {
+                                    if (this.hasOwnProperty('pam_enabled'))
+                                        show = this.pam_enabled;
+                                }
+                            })
+                            if (show)
+                                displayAr.push({ id: this.id, title: this.title, image: this.image, price: this.price });
+                        }
+                    })
+                }
             });
+        });
+
+        displayAr.sort(function (a, b) {
+            if (b.price == a.price)
+                return 0;
+            if (a.price < b.price)
+                return -1;
+            return 1;
+        });
+        var str = "<table>";
+        $(displayAr).each(function () {
+            str += '<tr onclick="PAM.show_offer_gift_message(' + this.id + ",'" + this.title + "'" + ')"><td>' + this.title + "</td><td class='giftwrap-img'><img src='" + this.image + "'></td><td>" + this.price + "</td></tr>";
         });
 
         str += "</table>";
@@ -886,6 +907,7 @@ var PAM = new function () {
     }
 
     var PAM_adjust_cart_quantities = function () {
+
         $(self.cart.items).each(function () {
             var bagged_count = PAM_get_bagged_product_count(this.variant_id);
             var display_count = $('#updates_' + this.variant_id).val();
@@ -907,6 +929,7 @@ var PAM = new function () {
             }
             //hide gift wrap products
         });
+
         $('#cart-form').css('visibility', 'visible');
     }
 
@@ -925,7 +948,6 @@ var PAM = new function () {
             $('#attributes_PICK-AND-MIX-INFO').html('none');
             return str;
         }
-
         if (obj !== null) {
             if (close_selected)
                 PAM_close_open_bag();
@@ -986,8 +1008,6 @@ var PAM = new function () {
             self.combine_packaging = combinePacking;
         else
             self.combine_packaging = "NO";
-
-
 
         if (showTempt)
             BDI_CART.show_checkout_tempt_popup()
@@ -1058,7 +1078,6 @@ var PAM = new function () {
                         window.setTimeout(function () {
                             self.is_busy = false;
                         }, 3000);
-
                     }
                 },
                 error: function (err) {
@@ -1577,9 +1596,10 @@ var PAM = new function () {
     }
 
     this.onAjaxError = function (err, logId) {
+        console.log(JSON.parse(err.responseText).description)
         if (self.developer_mode)
-            alert(err.message + ", " + logId);
-        self.PAM_log(err + ", id: " + logId);
+            alert(JSON.parse(err.responseText).description + ", " + logId);
+        self.PAM_log(JSON.parse(err.responseText).description + ", id: " + logId);
         self.check_pam_quantities(self.cart);
         self.is_busy = false;
     };

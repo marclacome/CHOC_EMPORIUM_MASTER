@@ -5,26 +5,6 @@
 
 
 
-{%comment V7 - these are now moved to theme.liquid so we can send final string from product pages in addition to cart pages %}
-<input type='hidden' id='gift_wrap_ids' value='
-{% for prod in collections['pick-and-mix-gift-wrap'].products %}
-  {% for var in prod.variants %}
-    {{var.id}},
-  {% endfor %}
-{% endfor %}
-'>
-
-<input type='hidden' id='tag_ids' value='
-{% for prod in collections['gift-tag'].products %}
-  {% for var in prod.variants %}
-    {{var.id}},
-  {% endfor %}
-{% endfor %}
-'>
-
-<input type='hidden' id='gift_tag_free_title' value='{% for prod in collections['gift-tag'].products %}{% if prod.first_available_variant.barcode == 'FREE GIFT TAG' %}{{prod.title}}{% endif %}{% endfor %}'>
-
-{% endcomment %}
 
 {% assign gift_wrap_ids = "" %}
 {% assign pam_gift_wrap_ids = "" %}
@@ -338,11 +318,11 @@ repeat the loop for gift tag items
 {% endfor %}
 
 
-        <div class="cart-row">
+    <div class="cart-row">
       <div class="grid">
 
         {% if settings.cart_notes_enable %}
-          <div class="grid-item"> {% comment %}removed  large--one-half from this div as part of reduce plastic packaging work {% endcomment %}
+          <div class="grid-item">
             <label for="cartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
             <textarea name="note" class="input-full" id="cartSpecialInstructions">{{ cart.note }}</textarea>
           </div>
@@ -354,7 +334,7 @@ repeat the loop for gift tag items
       <input type='hidden' name="attributes[VERSION_CART]" id='attributes_version_cart' value='0.00'>
         </div>
 
-        <div class="grid-item text-right small--text-center {% if settings.cart_notes_enable %}{% comment %}removed  large--one-half from this div as part of reduce plastic packaging work {% endcomment %}{% endif %}">
+        <div class="grid-item text-right small--text-center">
 
           <div class="cart-subtotal">
             <span id="bk-cart-subtotal-label">{{ 'cart.general.subtotal' | t }}</span>
@@ -376,6 +356,7 @@ repeat the loop for gift tag items
 
         <input type="hidden" name="note" id="note_string" value="" />
         {% include 'BDI_cart_packaging' %}
+
 
 
               <div style="display:none">

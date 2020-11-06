@@ -144,6 +144,7 @@
 	**********************************************************************************
 	-->
        {%else %}
+    <input type="text" id="product_meta_{{product.id}}" value="{{product.metafields.giftwrap.packing}}" />
 
 	{% if product.tags contains "OPTION-HIDE-BUY-DIRECT" %}
         <!-- insert hidden div for both product option select and
@@ -203,11 +204,7 @@
 
 
 
-            {% if product.tags contains 'NO GIFT WRAP' %}
-                <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", false, {{product.variants | size}}, "{{product.url}}")'>
-            {% else %}
-          	   <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", true, {{product.variants | size}}, "{{product.url}}")'>
-            {% endif %}
+            <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}",   "{{product.title| escape}}", {{product.variants | size}}, "{{product.url}}")'>
             <span >add to basket</span>
           	</div>
     		{% else %} <!-- varcount <= 1 -->
@@ -216,6 +213,7 @@
 	no variants - no select dropdown. add empty divs to keep height consistent
 	**********************************************************************************
 	-->
+
           <input type='hidden' id='{{product.id}}_no_variants_id' value='{{product.first_available_variant.id}}'>
   			  </div>
 
@@ -244,11 +242,7 @@
 
 
             {% if sold_out == false %}
-              {% if product.tags contains 'NO GIFT WRAP' %}
-                  <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title| escape}}", false, {{product.variants | size}}, "{{product.url}}")'>
-              {% else %}
-            	   <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}", "{{product.title | escape}}", true, {{product.variants | size}}, "{{product.url}}")'>
-              {% endif %}
+                  <div class='PAM-direct-to-cart btn' onclick='GW.add_to_basket_click("{{product.id}}",  "{{product.title| escape}}",{{product.variants | size}}, "{{product.url}}")'>
             <span >add to basket</span>
           	</div>
           {% else %}
