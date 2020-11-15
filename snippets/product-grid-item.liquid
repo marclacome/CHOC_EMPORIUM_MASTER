@@ -109,7 +109,7 @@
        		<td width="15%" align="center" class='pam-quantity-minus' id='pam-quantity-minus-{{product.first_available_variant.id}}'>
         	 &#45;
        		</td>
-     		<td width="70%"><input type='text' value="1" min="1" id='{{product.first_available_variant.id}}_bag_quantity' value='1'>
+     		<td width="70%"><input type='hidden' value="1" min="1" id='{{product.first_available_variant.id}}_bag_quantity' value='1'>
        		</td>
        		<td width="15%"  class='pam-quantity-plus' id='pam-quantity-plus-{{product.first_available_variant.id}}'>
         	 &#43;
@@ -144,7 +144,7 @@
 	**********************************************************************************
 	-->
        {%else %}
-    <input type="text" id="product_meta_{{product.id}}" value="{{product.metafields.giftwrap.packing}}" />
+    <input type="hidden" id="product_meta_{{product.id}}" value="{{product.metafields.giftwrap.packing}}" />
 
 	{% if product.tags contains "OPTION-HIDE-BUY-DIRECT" %}
         <!-- insert hidden div for both product option select and
@@ -191,7 +191,7 @@
 <td width="15%" align="center" class='pam-quantity-minus-GRID' id='pam-quantity-minus-{{product.id}}'>
  &#45;
 </td>
-<td width="70%"><input type='text' name='quantity' value="1" min="1" id='product_bag_quantity-{{product.id}}' value='1'>
+<td width="70%"><input type='hidden' name='quantity' value="1" min="1" id='product_bag_quantity-{{product.id}}' value='1'>
 </td>
 <td width="15%"  class='pam-quantity-plus-GRID' id='pam-quantity-plus-{{product.id}}'>
  &#43;
